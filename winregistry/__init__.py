@@ -1,7 +1,7 @@
 """ Simple module for working with Windows registry
 """
-from .key import Key
-from .value import Value
+from .key import Key as key
+from .value import Value as value
 
 
 # # registry
