@@ -11,6 +11,7 @@ class WinRegistry(object):
         ~~~~~~~~~~~~
         This module implements the main interaction with registry.
 
+<<<<<<< HEAD
         Usage::
             >>> from winregistry import WinRegistry as reg
             >>> path = 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
@@ -18,6 +19,15 @@ class WinRegistry(object):
             >>> req = reg.read(path, notepad)
             [('notepad', 'notepad.exe', 'REG_CZ')]
             >>> req = reg.delete(path, 'notepad')
+=======
+    Usage::
+      >>> from winregistry import WinRegistry as reg
+      >>> path = 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
+      >>> req = reg.write(path, 'notepad', 'notepad.exe')
+      >>> req = reg.read(path, notepad)
+      [('notepad', 'notepad.exe', 'REG_CZ')]
+      >>> req = reg.delete(path, 'notepad')
+>>>>>>> f792dfb569d3734824200f08fbab2957fa98d149
     """
 
     @staticmethod
