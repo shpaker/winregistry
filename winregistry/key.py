@@ -6,27 +6,36 @@
 # key_permissions
 import winreg
 
+from .utils import parse_path
+from .utils import WINREG_TYPES as REG_TYPES
 
-class Key(object):
-    """ Object for working with registry keys
-    """
 
-    def __init__(self):
-        pass
+def read(key, host=None, key_wow64_32key=False):
+    ''' Read data of a named key from registry
+    '''
 
-    @staticmethod
-    def read_values(self):
-        pass
+    resp = {'keys': [], 'values': []}
 
-    @staticmethod
-    def read_keys():
-        pass
+    x64_key = winreg.KEY_WOW64_32KEY if key_wow64_32key else winreg.KEY_WOW64_64KEY
+    access = winreg.KEY_READ | x64_key
+    try:
+        root, key_path = parse_path(key)
+        reg = winreg.ConnectRegistry(host, root)
+        handle = winreg.OpenKey(reg, key_path, 0, access)
 
-    def create(self):
-        pass
+        resp['keys_num'], resp['values_num'], resp['modify'] = winreg.QueryInfoKey(handle)
+    except:
+        raise
+    for key_i in range(0, resp['keys_num']):
+        resp['keys'].append(winreg.EnumKey(handle, key_i))
 
-    def delete(self):
-        pass
+    for key_i in range(0, resp['values_num']):
+        value = {}
+        value['value'], value['data'], value['type'] = winreg.EnumValue(handle, key_i)
+        value['type'] = REG_TYPES[value['type']]
+        resp['values'].append(value)
 
-    def rename(self):
-        pass
+    handle.Close()
+    reg.Close()
+
+    return resp

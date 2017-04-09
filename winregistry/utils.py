@@ -24,28 +24,18 @@ SHORT_ROOTS = {
     'HKU': 'HKEY_USERS',
     'HKCC': 'HKEY_CURRENT_CONFIG'}
 
+
 def parse_path(path):
     try:
-        _root, _path = path.split('\\', 1)
+        _root, key_path = path.split('\\', 1)
     except:
-        raise
-
-    if not _path:
-        raise Exception()
-
+        raise Exception('Error while parsing registry path "{}"'.format(path))
     try:
         _root = _root.upper()
         _root = SHORT_ROOTS[_root] if _root in SHORT_ROOTS else _root
         reg_root = getattr(winreg, _root)
     except:
-        raise
-
-    try:
-        key_path, value_name = _path.rsplit('\\', 1)
-    except:
-        raise
-
-    if not value_name:
-        raise KeyError('Key not found')
-
-    return (reg_root, key_path, value_name)
+        raise Exception('None exist root key "{}"'.format(_root))
+    if not key_path:
+        raise Exception('Not found existsing key in "{}"'.format(path))
+    return (reg_root, key_path)
