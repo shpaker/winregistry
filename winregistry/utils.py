@@ -39,3 +39,15 @@ def parse_path(path):
     if not key_path:
         raise Exception('Not found existsing key in "{}"'.format(path))
     return (reg_root, key_path)
+
+
+def parse_subkey(key):
+    try:
+        parental, subkey = key.rsplit(sep='\\', maxsplit=1)
+    except:
+        raise Exception('Error while parsing registry key "{}"'.format(key))
+
+    if not parental or not subkey:
+        raise Exception('Not found existsing parental (or child) key in "{}"'.format(key))
+
+    return (parental, subkey)
