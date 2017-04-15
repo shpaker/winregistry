@@ -6,8 +6,6 @@ Minimalist Python library aimed at working with Windows Registry.
 Installation
 ------------
 
-To install Requests, simply:
-
 .. code-block:: bash
 
     pip install winregistry
