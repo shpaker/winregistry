@@ -6,16 +6,20 @@
         >>> import winregistry as reg
         >>> path = r'HKLM\SOFTWARE\remove_me'
         >>> reg.key.create(path + r'\test')
+        >>> True if 'remove_me' in reg.key.read(r'HKLM\SOFTWARE')['keys'] else False
+        True
         >>> reg.value.write(path, 'Value name', 'Some data')
         >>> reg.key.read(path)
-        {'keys': ['test'], 'values': [{'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ'}], 'keys_num': 1, 'values_num': 1, 'modify': 131367137267536662}
+        {'keys': ['test'], 'values': [{'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ'}], 'modify': datetime.datetime(2017, 4, 15, 7, 44, 15, 600890)}
         >>> reg.value.read(path, 'Value name')
-        {'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ', 'host': None}
+        {'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ'}
         >>> reg.value.delete(path, 'Value name')
         >>> reg.key.delete(path + r'\test')
         >>> reg.key.read(path)
-        {'keys': [], 'values': [], 'keys_num': 0, 'values_num': 0, 'modify': 131367138502814747}
+        {'keys': [], 'values': [], 'modify': datetime.datetime(2017, 4, 15, 7, 44, 50, 838510)}
         >>> reg.key.delete(path)
+        >>> True if 'remove_me' in reg.key.read(r'HKLM\SOFTWARE')['keys'] else False
+        False
 """
 
 from .key import read, create, delete
