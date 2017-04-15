@@ -1,4 +1,5 @@
 import winreg
+from datetime import datetime, timedelta
 
 from .utils import parse_path
 from .utils import parse_subkey
@@ -18,14 +19,14 @@ def read(key, host=None, key_wow64_32key=False):
         root, key_path = parse_path(key)
         reg = winreg.ConnectRegistry(host, root)
         handle = winreg.OpenKey(reg, key_path, 0, access)
-
-        resp['keys_num'], resp['values_num'], resp['modify'] = winreg.QueryInfoKey(handle)
+        keys_num, values_num, modify = winreg.QueryInfoKey(handle)
+        resp['modify'] = datetime(1601, 1, 1) + timedelta(microseconds=modify/10)
     except:
         raise
-    for key_i in range(0, resp['keys_num']):
+    for key_i in range(0, keys_num):
         resp['keys'].append(winreg.EnumKey(handle, key_i))
 
-    for key_i in range(0, resp['values_num']):
+    for key_i in range(0, values_num):
         value = {}
         value['value'], value['data'], value['type'] = winreg.EnumValue(handle, key_i)
         value['type'] = REG_TYPES[value['type']]

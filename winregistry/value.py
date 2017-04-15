@@ -26,7 +26,6 @@ def read(key, value, host=None, key_wow64_32key=False):
     reg_type = REG_TYPES[reg_value[1]]
 
     data = {'value': value, 'data': reg_value[0], 'type': reg_type}
-    data['host'] = host if host else None
 
     return data
 
