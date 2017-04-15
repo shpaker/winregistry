@@ -1,50 +1,22 @@
-''' winregistry
+""" winregistry
     ~~~~~~~~~~~
-    Minimalist `Python` library aimed at working with Windows registry.
+    Minimalist Python library aimed at working with Windows registry.
 
     Usage::
-        >>> from winregistry import WinRegistry as reg
-        >>> path = 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
-        >>> req = reg.write(path, 'notepad', 'notepad.exe')
-        >>> req = reg.read(path, notepad)
-        [('notepad', 'notepad.exe', 'REG_CZ')]
-        >>> req = reg.delete(path, 'notepad')
-'''
-# from .key import Key as key
-# from .value import Value as value
-# from .utils import RegType as regtype
+        >>> import winregistry as reg
+        >>> path = r'HKLM\SOFTWARE\remove_me'
+        >>> reg.key.create(path + r'\test')
+        >>> reg.value.write(path, 'Value name', 'Some data')
+        >>> reg.key.read(path)
+        {'keys': ['test'], 'values': [{'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ'}], 'keys_num': 1, 'values_num': 1, 'modify': 131367137267536662}
+        >>> reg.value.read(path, 'Value name')
+        {'value': 'Value name', 'data': 'Some data', 'type': 'REG_SZ', 'host': None}
+        >>> reg.value.delete(path, 'Value name')
+        >>> reg.key.delete(path + r'\test')
+        >>> reg.key.read(path)
+        {'keys': [], 'values': [], 'keys_num': 0, 'values_num': 0, 'modify': 131367138502814747}
+        >>> reg.key.delete(path)
+"""
 
-
-def write(key, value=None, data=None, regtype='REG_SZ', host=None, w64_k32=False):
-    ''' Create new keys/values or stores data in the existing value field
-
-        :param value_name: ...
-        :param value: ...
-        :param type:  ...
-        :param host:  ...
-        :param w64_k32:  ...
-    '''
-    pass
-
-@staticmethod
-def read(key, value=None, host=None, w64_k32=False):
-    ''' Read values from registry keys
-
-        :param value_name: ...
-        :param host:  ...
-        :param w64_k32:  ...
-        :return: ...
-        :rtype: ...
-    '''
-    pass
-    # return ({'value': None, 'type': 'REG_SZ'})
-
-@staticmethod
-def remove(key, value=None, host=None, w64_k32=False):
-    ''' Remove existing keys/values from registry
-
-        :param value_name: ...
-        :param host:  ...
-        :param w64_k32:  ...
-    '''
-    pass
+from .key import read, create, delete
+from .value import read, write, delete
