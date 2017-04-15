@@ -1,9 +1,3 @@
-# # edit key
-# key_get(path)
-# key_new(path)
-# key_delete(path. incremental=False)
-# key_rename(path, name)
-# key_permissions
 import winreg
 
 from .utils import parse_path
@@ -43,29 +37,7 @@ def read(key, host=None, key_wow64_32key=False):
     return resp
 
 
-def delete(key, host=None, key_wow64_32key=False):
-    ''' Delete named key from registry
-    '''
-
-    x64_key = winreg.KEY_WOW64_32KEY if key_wow64_32key else winreg.KEY_WOW64_64KEY
-    access = winreg.KEY_WRITE | x64_key
-
-    try:
-        root, key_path = parse_path(key)
-        parental, subkey = parse_subkey(key_path)
-
-        reg = winreg.ConnectRegistry(host, root)
-        handle = winreg.OpenKey(reg, parental, 0, access)
-
-        winreg.DeleteKey(handle, subkey)
-
-        handle.Close()
-        reg.Close()
-    except:
-        raise
-
-
-def write(key, host=None, key_wow64_32key=False):
+def create(key, host=None, key_wow64_32key=False):
     ''' Delete named key from registry
     '''
 
@@ -90,19 +62,36 @@ def write(key, host=None, key_wow64_32key=False):
         try:
             handle = winreg.OpenKey(reg, current_path, 0, access)
             current_path = current_path + subkeys[i] + '\\'
-            print('key current')
-            print(current_path)
             i += 1
         except FileNotFoundError:
             is_exist = False
             i = 0 if i == 0 else i - 1
 
-
     tail = '\\'.join(subkeys[i:])
-
-    print(tail)
 
     winreg.CreateKeyEx(handle, tail, 0, access)
 
     handle.Close()
     reg.Close()
+
+
+def delete(key, host=None, key_wow64_32key=False):
+    ''' Delete named key from registry
+    '''
+
+    x64_key = winreg.KEY_WOW64_32KEY if key_wow64_32key else winreg.KEY_WOW64_64KEY
+    access = winreg.KEY_WRITE | x64_key
+
+    try:
+        root, key_path = parse_path(key)
+        parental, subkey = parse_subkey(key_path)
+
+        reg = winreg.ConnectRegistry(host, root)
+        handle = winreg.OpenKey(reg, parental, 0, access)
+
+        winreg.DeleteKey(handle, subkey)
+
+        handle.Close()
+        reg.Close()
+    except:
+        raise

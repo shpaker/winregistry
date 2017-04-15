@@ -1,8 +1,4 @@
-''' Object for working with registry values
-'''
-
 import winreg
-# from winreg import KEY_WOW64_32KEY, KEY_WOW64_64KEY, KEY_READ, KEY_WRITE
 
 from .utils import parse_path
 from .utils import WINREG_TYPES as REG_TYPES
