@@ -1,5 +1,8 @@
 from setuptools import setup
-from os.path import join, dirname
+import os
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup (
     name='winregistry',
@@ -10,6 +13,8 @@ setup (
     keywords='windows registry regedit winreg',
     url='https://github.com/shpaker/winregistry',
     packages=['winregistry'],
+    platforms='windows',
+    long_description=read('README.rst'),
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 4 - Beta',
