@@ -4,6 +4,10 @@ winregistry
 .. image:: https://badge.fury.io/py/winregistry.svg
     :target: https://badge.fury.io/py/winregistry
 
+.. image:: https://landscape.io/github/shpaker/winregistry/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/shpaker/winregistry/master
+   :alt: Code Health
+
 Minimalist Python library aimed at working with Windows Registry.
 
 Installation
