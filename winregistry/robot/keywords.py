@@ -1,7 +1,6 @@
 """ 
      Class for working with Robot Testing Framework
 """
-import logging
 
 from winregistry import WinRegistry as Reg
 
