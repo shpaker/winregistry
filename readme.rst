@@ -1,6 +1,9 @@
 winregistry
 ===========
 
+.. image:: https://badge.fury.io/py/winregistry.svg
+    :target: https://badge.fury.io/py/winregistry
+
 Minimalist Python library aimed at working with Windows Registry.
 
 Installation
