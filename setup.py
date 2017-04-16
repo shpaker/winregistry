@@ -1,18 +1,26 @@
 from setuptools import setup
-from os.path import join, dirname
+import os
+
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup (
     name='winregistry',
-    version='0.7',
+    version='0.8',
     author='Alexander Shpak',
     author_email='shpaker@gmail.com',
     description=('Library aimed at working with Windows registry'),
+    long_description=read('README.rst'),
     keywords='windows registry regedit winreg',
     url='https://github.com/shpaker/winregistry',
-    packages=['winregistry'],
+    platforms='windows',
+    packages=['winregistry', 'winregistry.robot'],
     classifiers=[
         'Programming Language :: Python',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
+        'Framework :: Robot Framework :: Library'
         'Environment :: Win32 (MS Windows)',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Operating System :: Microsoft :: Windows'
