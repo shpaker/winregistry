@@ -20,7 +20,7 @@ setup (
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 3 - Alpha',
-        'Framework :: Robot Framework :: Library'
+        'Framework :: Robot Framework :: Library',
         'Environment :: Win32 (MS Windows)',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Operating System :: Microsoft :: Windows'
