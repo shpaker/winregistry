@@ -39,7 +39,10 @@ WINREG_TYPES = ['REG_NONE',              # 0 == winreg.REG_NONE
                                          # 9 == winreg.REG_FULL_RESOURCE_DESCRIPTOR
                 'REG_FULL_RESOURCE_DESCRIPTOR',
                 # 10 == winreg.REG_RESOURCE_REQUIREMENTS_LIST:
-                'REG_RESOURCE_REQUIREMENTS_LIST']
+                'REG_RESOURCE_REQUIREMENTS_LIST',
+                'REG_QWORD'             # 11 == winreg.REG_QWORD
+                                         # 11 == winreg.REG_QWORD_LITTLE_ENDIAN
+                # 'REG_QWORD_LITTLE_ENDIAN']
 
 SHORT_ROOTS = {
     'HKCR': 'HKEY_CLASSES_ROOT',
