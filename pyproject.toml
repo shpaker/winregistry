@@ -1,0 +1,70 @@
+[tool.poetry]
+name = "winregistry"
+version = "1.0.0"
+description = "Library aimed at working with Windows registry"
+authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
+readme = "readme.md"
+homepage = "https://github.com/shpaker/winregistry"
+repository = "https://github.com/shpaker/winregistry"
+keywords = ["windows", "registry", "regedit", "winreg"]
+classifiers = [
+    'Programming Language :: Python',
+    'Framework :: Robot Framework :: Library',
+    'Environment :: Win32 (MS Windows)',
+    'Operating System :: Microsoft :: Windows',
+]
+packages = [
+    { include = "winregistry" },
+    { include = "winregistry/robot" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^3.9.2"
+pylint = "^2.9.3"
+mypy = "^0.910"
+pre-commit = "^2.13.0"
+pytest = "^6.2.4"
+black = "^21.6b0"
+robotframework = "^4.0.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+verbose = 1
+color = true
+exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.mypy_cache
+    | \.pytest_cache
+    | \.venv
+  )/
+)
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 120
+src_paths = ["soxyproxy", "test"]
+skip = [".mypy_cache", ".pytest_cache", "venv"]
+
+[tool.pylint.messages_control]
+disable = "missing-docstring,no-self-use,logging-fstring-interpolation,too-few-public-methods,too-many-arguments,duplicate-code"
+extend-ignore = "E203,W503"
+
+[tool.pylint.format]
+max-line-length = "120"
+indent-string = "    "
+good-names = "i, x, y"
