@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
 
-from winregistry.utils import WinregType
+from winregistry.consts import WinregType
 
 
 @dataclass(frozen=True)

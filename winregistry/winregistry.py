@@ -17,8 +17,9 @@ from winreg import (
     SetValueEx,
 )
 
-from winregistry.enums import RegEntry, RegKey
-from winregistry.utils import WinregType, get_access_key, parse_path
+from winregistry.consts import WinregType
+from winregistry.models import RegEntry, RegKey
+from winregistry.utils import get_access_key, parse_path
 
 
 class WinRegistry:

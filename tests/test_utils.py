@@ -7,6 +7,8 @@ from winregistry.utils import (
     parse_path,
 )
 
+TEST_REG_PATH = r"HKLM\SOFTWARE\_REMOVE_ME_"
+
 
 def test_expand_short_root() -> None:
     root = expand_short_root("HKU")
@@ -24,10 +26,9 @@ def test_get_access_key() -> None:
 
 
 def test_parse_path() -> None:
-    path = r"HKLM\SOFTWARE\remove_me"
-    root, path = parse_path(path)
+    root, path = parse_path(TEST_REG_PATH)
     assert root == HKEY_LOCAL_MACHINE, root
-    assert path == r"SOFTWARE\remove_me"
+    assert path == TEST_REG_PATH.lstrip("HKLM\\")
 
 
 def test_get_key_handle() -> None:
@@ -48,22 +49,22 @@ def test_read_entry() -> None:
 
 
 def test_write_entry() -> None:
-    reg_key = r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     with WinRegistry() as client:
-        client.write_entry(reg_key, "remove_me", "test")
-        test_entry = client.read_entry(reg_key, "remove_me")
+        client.create_key(TEST_REG_PATH)
+        client.write_entry(TEST_REG_PATH, "remove_me", "test")
+        test_entry = client.read_entry(TEST_REG_PATH, "remove_me")
         assert test_entry.value == "test"
-        client.delete_entry(reg_key, "remove_me")
+        client.delete_entry(TEST_REG_PATH, "remove_me")
 
 
 def test_delete_entry() -> None:
-    reg_key = r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     with WinRegistry() as client:
-        client.write_entry(reg_key, "remove_me", "test")
-        client.read_entry(reg_key, "remove_me")
-        client.delete_entry(reg_key, "remove_me")
+        client.create_key(TEST_REG_PATH)
+        client.write_entry(TEST_REG_PATH, "remove_me", "test")
+        client.read_entry(TEST_REG_PATH, "remove_me")
+        client.delete_entry(TEST_REG_PATH, "remove_me")
         try:
-            client.read_entry(reg_key, "remove_me")
+            client.read_entry(TEST_REG_PATH, "remove_me")
             raise AssertionError
         except FileNotFoundError:
             pass

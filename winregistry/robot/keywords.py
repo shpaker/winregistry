@@ -3,9 +3,7 @@
 """
 from typing import Any
 
-from winregistry import WinRegistry
-from winregistry.enums import RegEntry, RegKey
-from winregistry.utils import WinregType
+from winregistry import WinRegistry, RegKey, WinregType, RegEntry
 
 
 class Keywords:
