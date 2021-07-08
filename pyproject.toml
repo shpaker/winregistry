@@ -13,10 +13,6 @@ classifiers = [
     'Environment :: Win32 (MS Windows)',
     'Operating System :: Microsoft :: Windows',
 ]
-packages = [
-    { include = "winregistry" },
-    { include = "winregistry.robot" },
-]
 
 [tool.poetry.dependencies]
 python = "^3.7"
