@@ -360,14 +360,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "robotframework"
-version = "4.0.3"
-description = "Generic automation framework for acceptance testing and robotic process automation (RPA)"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -441,7 +433,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "1596ad6c3fc5bc2882b2d43c471b281de2f6ee72d11b00d9a23c120c1f4125f1"
+content-hash = "c5c3547b4d8fe5e0a6360813055d31123086dfb18bc2acb2bf6c36999bcc438b"
 
 [metadata.files]
 appdirs = [
@@ -678,10 +670,6 @@ regex = [
     {file = "regex-2021.7.6-cp39-cp39-win32.whl", hash = "sha256:eaf58b9e30e0e546cdc3ac06cf9165a1ca5b3de8221e9df679416ca667972035"},
     {file = "regex-2021.7.6-cp39-cp39-win_amd64.whl", hash = "sha256:4c9c3155fe74269f61e27617529b7f09552fbb12e44b1189cebbdb24294e6e1c"},
     {file = "regex-2021.7.6.tar.gz", hash = "sha256:8394e266005f2d8c6f0bc6780001f7afa3ef81a7a2111fa35058ded6fce79e4d"},
-]
-robotframework = [
-    {file = "robotframework-4.0.3-py2.py3-none-any.whl", hash = "sha256:cebba6980372762c249d87843a55972873800ffda3bf73c848e95c7cad2eef59"},
-    {file = "robotframework-4.0.3.zip", hash = "sha256:93c2107f789fd897f234f4b8f1ba8e7b9f4ef326d9bcbfceb71dda8cc197388c"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
