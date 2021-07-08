@@ -9,8 +9,8 @@ class robot(Keywords):  # pylint: disable=invalid-name
     https://github.com/shpaker/winregistry
         Examples:
         | ${path}               | HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run |
-        | Write Registry Value  | ${path}           | Notepad | notepad.exe               |
+        | Write Registry Entry  | ${path}           | Notepad | notepad.exe               |
         | ${autorun} =          | Read Registry Key | ${path} |                           |
         | Log                   | ${autorun}        |         |                           |
-        | Delete Registry Value | ${path}           | Notepad |                           |
+        | Delete Registry Entry | ${path}           | Notepad |                           |
     """
