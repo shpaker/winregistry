@@ -1,10 +1,11 @@
-from .keywords import Keywords
+from winregistry.robot.keywords import Keywords
+
+ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
 
-ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-
-class robot(Keywords):
-    """ RequestsLibrary is a HTTP client keyword library that uses
+class robot(Keywords):  # pylint: disable=invalid-name
+    """
+    RequestsLibrary is a HTTP client keyword library that uses
     the requests module from Kenneth Reitz
     https://github.com/kennethreitz/requests
         Examples:
