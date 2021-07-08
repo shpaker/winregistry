@@ -61,7 +61,7 @@ src_paths = ["soxyproxy", "test"]
 skip = [".mypy_cache", ".pytest_cache", "venv"]
 
 [tool.pylint.messages_control]
-disable = "missing-docstring,logging-fstring-interpolation,too-few-public-methods,too-many-arguments,duplicate-code"
+disable = "missing-docstring,no-self-use,logging-fstring-interpolation,too-few-public-methods,too-many-arguments,duplicate-code"
 extend-ignore = "E203,W503"
 
 [tool.pylint.format]

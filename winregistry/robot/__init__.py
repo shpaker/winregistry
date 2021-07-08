@@ -5,9 +5,8 @@ ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
 class robot(Keywords):  # pylint: disable=invalid-name
     """
-    RequestsLibrary is a HTTP client keyword library that uses
-    the requests module from Kenneth Reitz
-    https://github.com/kennethreitz/requests
+    Minimalist Python library aimed at working with Windows Registry.
+    https://github.com/shpaker/winregistry
         Examples:
         | ${path}               | HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run |
         | Write Registry Value  | ${path}           | Notepad | notepad.exe               |
