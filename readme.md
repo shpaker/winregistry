@@ -17,12 +17,12 @@ TEST_REG_PATH = r"HKLM\SOFTWARE\_REMOVE_ME_"
 
 
 if __name__ == "__main__":
-  with WinRegistry() as client:
-      client.create_key(TEST_REG_PATH)
-      client.write_entry(TEST_REG_PATH, "remove_me", "test")
-      test_entry = client.read_entry(TEST_REG_PATH, "remove_me")
-      assert test_entry.value == "test"
-      client.delete_entry(TEST_REG_PATH, "remove_me")
+    with WinRegistry() as client:
+        client.create_key(TEST_REG_PATH)
+        client.write_entry(TEST_REG_PATH, "remove_me", "test")
+        test_entry = client.read_entry(TEST_REG_PATH, "remove_me")
+        assert test_entry.value == "test"
+        client.delete_entry(TEST_REG_PATH, "remove_me")
 ```
 
 Usage with ``Robot Testing Framework`` Library

@@ -441,7 +441,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "1596ad6c3fc5bc2882b2d43c471b281de2f6ee72d11b00d9a23c120c1f4125f1"
+content-hash = "29de3713c3e07869cff7a085bf83727328fa6784e63d1824f0e3b12388a8504a"
 
 [metadata.files]
 appdirs = [

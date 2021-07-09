@@ -33,7 +33,7 @@ def test_parse_path() -> None:
 
 def test_get_key_handle() -> None:
     with WinRegistry() as reg:
-        handler = reg.get_handler(
+        handler = reg._get_handler(
             r"HKLM\SOFTWARE",
             access=KEY_READ,
             key_wow64_32key=False,
