@@ -29,6 +29,7 @@ pre-commit = "^2.13.0"
 pytest = "^6.2.4"
 black = "^21.6b0"
 robotframework = "^4.0.3"
+isort = "^5.9.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -57,7 +58,7 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 120
-src_paths = ["soxyproxy", "test"]
+src_paths = ["winregistry", "test"]
 skip = [".mypy_cache", ".pytest_cache", "venv"]
 
 [tool.pylint.messages_control]

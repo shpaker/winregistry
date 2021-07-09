@@ -32,7 +32,7 @@ class WinRegistry:
         self._handler = None
         self._root: Optional[HKEYType] = None
 
-    def get_handler(
+    def _get_handler(
         self,
         key: str,
         access: int,
@@ -50,12 +50,15 @@ class WinRegistry:
         )
         return key_handle
 
+    def close(self) -> None:
+        if self._client:
+            self._client.Close()
+
     def __enter__(self) -> "WinRegistry":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
-        if self._client:
-            self._client.Close()
+        self.close()
         if exc_val:
             raise
 
@@ -65,7 +68,7 @@ class WinRegistry:
         name: str,
         key_wow64_32key: bool = False,
     ) -> RegEntry:
-        handle = self.get_handler(reg_key, KEY_READ, key_wow64_32key)
+        handle = self._get_handler(reg_key, KEY_READ, key_wow64_32key)
         raw_value, raw_type = QueryValueEx(handle, name)
         return RegEntry(
             reg_key=reg_key,
@@ -85,7 +88,7 @@ class WinRegistry:
     ) -> None:
         if isinstance(reg_type, int):
             reg_type = WinregType(reg_type)
-        handle = self.get_handler(reg_key, KEY_SET_VALUE, key_wow64_32key)
+        handle = self._get_handler(reg_key, KEY_SET_VALUE, key_wow64_32key)
         SetValueEx(handle, name, 0, reg_type.value, value)
 
     def delete_entry(
@@ -94,7 +97,7 @@ class WinRegistry:
         name: str,
         key_wow64_32key: bool = False,
     ) -> None:
-        handle = self.get_handler(key, KEY_SET_VALUE, key_wow64_32key)
+        handle = self._get_handler(key, KEY_SET_VALUE, key_wow64_32key)
         DeleteValue(handle, name)
 
     def read_key(
@@ -102,7 +105,7 @@ class WinRegistry:
         name: str,
         key_wow64_32key: bool = False,
     ) -> RegKey:
-        handle = self.get_handler(name, KEY_READ, key_wow64_32key)
+        handle = self._get_handler(name, KEY_READ, key_wow64_32key)
         keys_num, values_num, modify = QueryInfoKey(handle)
         modify_at = datetime(1601, 1, 1) + timedelta(microseconds=modify / 10)
         keys = list()
@@ -138,7 +141,7 @@ class WinRegistry:
         while i < len(sub_keys) and not handler:
             try:
                 current = "\\".join(sub_keys[: len(sub_keys) - i])
-                handler = self.get_handler(current, KEY_WRITE, key_wow64_32key)
+                handler = self._get_handler(current, KEY_WRITE, key_wow64_32key)
             except FileNotFoundError:
                 i += 1
         before_index = len(sub_keys) - i
@@ -156,5 +159,5 @@ class WinRegistry:
         key_wow64_32key: bool = False,
     ) -> None:
         parental, key_name = name.rsplit(sep="\\", maxsplit=1)
-        handle = self.get_handler(parental, KEY_WRITE, key_wow64_32key)
+        handle = self._get_handler(parental, KEY_WRITE, key_wow64_32key)
         DeleteKey(handle, key_name)
