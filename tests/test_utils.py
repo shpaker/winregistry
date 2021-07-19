@@ -1,4 +1,4 @@
-from winreg import KEY_READ, HKEY_LOCAL_MACHINE
+from winreg import KEY_READ, HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER
 
 from winregistry import WinRegistry
 from winregistry.utils import (
@@ -27,7 +27,7 @@ def test_get_access_key() -> None:
 
 def test_parse_path() -> None:
     root, path = parse_path(TEST_REG_PATH)
-    assert root == HKEY_LOCAL_MACHINE, root
+    assert root == HKEY_CURRENT_USER, root
     assert path == TEST_REG_PATH.lstrip("HKCU\\")
 
 
@@ -42,7 +42,7 @@ def test_get_key_handle() -> None:
 
 
 def test_read_entry() -> None:
-    reg_key = r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    reg_key = r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     with WinRegistry() as client:
         software_type = client.read_entry(reg_key, "SoftwareType")
     assert software_type.value == "System"
@@ -71,7 +71,7 @@ def test_delete_entry() -> None:
 
 
 def test_read_key() -> None:
-    reg_key = r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    reg_key = r"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion"
     with WinRegistry() as client:
         data = client.read_key(reg_key)
         assert data.entries
@@ -110,6 +110,7 @@ def test_delete_key() -> None:
         except FileNotFoundError:
             pass
 
+
 def test_delete_key_tree() -> None:
     reg_key = r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test"
     with WinRegistry() as client:
@@ -118,8 +119,8 @@ def test_delete_key_tree() -> None:
             raise AssertionError
         except FileNotFoundError:
             pass
-        client.create_key(reg_key+"\\test1\\test3")
-        client.write_entry(reg_key+"\\test1", "remove_me", "test")
+        client.create_key(reg_key + "\\test1\\test3")
+        client.write_entry(reg_key + "\\test1", "remove_me", "test")
         client.delete_key_tree(reg_key)
         try:
             data = client.read_key(reg_key)
@@ -127,5 +128,9 @@ def test_delete_key_tree() -> None:
         except FileNotFoundError:
             pass
 
+
 if __name__ == '__main__':
-    test_delete_key_tree()
+    for key, value in list(globals().items()):
+        if callable(value) and key.startswith("test_"):
+            print("Testing {0}".format(key))
+            value()
