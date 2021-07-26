@@ -168,10 +168,9 @@ class WinRegistry:
         key_wow64_32key: bool = False,
     ) -> None:
         handle = self._get_handler(name, KEY_READ, key_wow64_32key)
-        keys_num, values_num, modify = QueryInfoKey(handle)
+        keys_num, values_num, modify = QueryInfoKey(handle)  # pylint: disable=unused-variable
         for key_i in range(0, keys_num):
             key = EnumKey(handle, key_i)
             self.delete_key_tree(f"{name}\\{key}", key_wow64_32key)
         handle.Close()
         self.delete_key(name, key_wow64_32key)
-

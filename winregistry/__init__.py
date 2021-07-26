@@ -1,4 +1,4 @@
-from winregistry.consts import WinregType, ShortRootAlias
+from winregistry.consts import ShortRootAlias, WinregType
 from winregistry.models import RegEntry, RegKey
 from winregistry.winregistry import WinRegistry
 

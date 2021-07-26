@@ -3,7 +3,7 @@
 """
 from typing import Any
 
-from winregistry import WinRegistry, RegKey, WinregType, RegEntry
+from winregistry import RegEntry, RegKey, WinRegistry, WinregType
 
 
 class Keywords:
