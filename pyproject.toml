@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "winregistry"
-version = "1.0.1"
+version = "1.1.0"
 description = "Library aimed at working with Windows registry"
 authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
 readme = "readme.md"
