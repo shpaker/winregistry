@@ -1,6 +1,4 @@
-"""
-     Class for working with Robot Testing Framework
-"""
+# pylint: disable=no-self-use
 from typing import Any
 
 from winregistry import RegEntry, RegKey, WinRegistry, WinregType
