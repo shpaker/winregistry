@@ -1,23 +1,19 @@
-from winreg import KEY_READ, HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER
+from winreg import HKEY_CURRENT_USER, KEY_READ
 
 from winregistry import WinRegistry
-from winregistry.utils import (
-    expand_short_root,
-    get_access_key,
-    parse_path,
-)
+from winregistry.utils import expand_short_root, get_access_key, parse_path
 
 TEST_REG_PATH = r"HKCU\SOFTWARE\_REMOVE_ME_"
 
 
 def test_expand_short_root() -> None:
     root = expand_short_root("HKU")
-    assert r"HKEY_USERS" == root, root
+    assert root == "HKEY_USERS", root
 
 
 def test_expand_long_root() -> None:
     root = expand_short_root("SOME_LONG_STRING")
-    assert "SOME_LONG_STRING" == root, root
+    assert root == "SOME_LONG_STRING", root
 
 
 def test_get_access_key() -> None:
@@ -33,6 +29,7 @@ def test_parse_path() -> None:
 
 def test_get_key_handle() -> None:
     with WinRegistry() as reg:
+        # pylint: disable=protected-access
         handler = reg._get_handler(
             r"HKCU\SOFTWARE",
             access=KEY_READ,
@@ -98,14 +95,14 @@ def test_delete_key() -> None:
     reg_key = r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test"
     with WinRegistry() as client:
         try:
-            data = client.read_key(r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test")
+            client.read_key(r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test")
             raise AssertionError
         except FileNotFoundError:
             pass
         client.create_key(reg_key)
         client.delete_key(r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test")
         try:
-            data = client.read_key(r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test")
+            client.read_key(r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test")
             raise AssertionError
         except FileNotFoundError:
             pass
@@ -115,7 +112,7 @@ def test_delete_key_tree() -> None:
     reg_key = r"HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\test"
     with WinRegistry() as client:
         try:
-            data = client.read_key(reg_key)
+            client.read_key(reg_key)
             raise AssertionError
         except FileNotFoundError:
             pass
@@ -123,13 +120,13 @@ def test_delete_key_tree() -> None:
         client.write_entry(reg_key + "\\test1", "remove_me", "test")
         client.delete_key_tree(reg_key)
         try:
-            data = client.read_key(reg_key)
+            client.read_key(reg_key)
             raise AssertionError
         except FileNotFoundError:
             pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for key, value in list(globals().items()):
         if callable(value) and key.startswith("test_"):
             print("Testing {0}".format(key))
