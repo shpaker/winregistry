@@ -78,7 +78,7 @@ class WinRegistry:
             host=self.host,
         )
 
-    def write_entry(
+       def write_entry(
         self,
         reg_key: str,
         name: str,
@@ -89,7 +89,20 @@ class WinRegistry:
         if isinstance(reg_type, int):
             reg_type = WinregType(reg_type)
         handle = self._get_handler(reg_key, KEY_SET_VALUE, key_wow64_32key)
-        SetValueEx(handle, name, 0, reg_type.value, value)
+        if reg_type == WinregType.REG_DWORD:
+            new_value = int(value, 16)
+        elif reg_type == WinregType.REG_QWORD:
+            new_value = int(value, 16)
+        elif reg_type == WinregType.REG_BINARY:
+            if value[:2] == "0x" or value[:2] == "0X":     # for Binary, we shall always use the format of hex string begin with 0x.
+                hex_string = value[2:]
+            else:
+                hex_string = value
+            new_value = bytes.fromhex(hex_string)
+        else:
+            new_value = value
+        print("type=", reg_type, " name=", name, " Value=", new_value)
+        SetValueEx(handle, name, 0, reg_type.value, new_value)
 
     def delete_entry(
         self,
