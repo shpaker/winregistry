@@ -16,7 +16,8 @@ from winreg import (
     QueryValueEx,
     SetValueEx,
 )
-
+import struct
+import binascii
 from winregistry.consts import WinregType
 from winregistry.models import RegEntry, RegKey
 from winregistry.utils import get_access_key, parse_path
