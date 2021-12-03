@@ -102,7 +102,6 @@ class WinRegistry:
             new_value = bytes.fromhex(hex_string)
         else:
             new_value = value
-        print("type=", reg_type, " name=", name, " Value=", new_value)
         SetValueEx(handle, name, 0, reg_type.value, new_value)
 
     def delete_entry(
