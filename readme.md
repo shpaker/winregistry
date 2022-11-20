@@ -1,4 +1,7 @@
-# winregistry
+# WinRegistry
+
+[![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
+[![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 
 Minimalist Python library aimed at working with Windows Registry.
 
