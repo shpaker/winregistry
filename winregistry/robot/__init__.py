@@ -3,7 +3,7 @@ from winregistry.robot.keywords import Keywords
 ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
 
-class robot(Keywords):  # pylint: disable=invalid-name
+class robot(Keywords):
     """
     Minimalist Python library aimed at working with Windows Registry.
     https://github.com/shpaker/winregistry
@@ -14,3 +14,8 @@ class robot(Keywords):  # pylint: disable=invalid-name
         | Log                   | ${autorun}        |         |                           |
         | Delete Registry Entry | ${path}           | Notepad |                           |
     """
+
+
+__all__ = [
+    "robot",
+]

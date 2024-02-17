@@ -1,4 +1,3 @@
-# pylint: disable=no-self-use
 from typing import Any
 
 from winregistry import RegEntry, RegKey, WinRegistry, WinregType
@@ -12,8 +11,7 @@ class Keywords:
     ) -> RegKey:
         """Reading registry key"""
         with WinRegistry() as client:
-            resp = client.read_key(key, key_wow64_32key)
-        return resp
+            return client.read_key(key, key_wow64_32key)
 
     def create_registry_key(
         self,
@@ -41,8 +39,7 @@ class Keywords:
     ) -> RegEntry:
         """Reading value from registry"""
         with WinRegistry() as client:
-            resp = client.read_entry(key, value, key_wow64_32key)
-        return resp
+            return client.read_entry(key, value, key_wow64_32key)
 
     def write_registry_entry(
         self,

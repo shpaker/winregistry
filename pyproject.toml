@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "winregistry"
-version = "1.1.1"
+version = "0.1.0"
 description = "Library aimed at working with Windows registry"
 authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
-readme = "readme.md"
+readme = "README.md"
 homepage = "https://github.com/shpaker/winregistry"
 repository = "https://github.com/shpaker/winregistry"
 keywords = ["windows", "registry", "regedit", "winreg"]
@@ -19,18 +19,25 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.8,<4.0"
 
-[tool.poetry.dev-dependencies]
-flake8 = "^3.9.2"
-pylint = "^2.9.3"
-mypy = "^0.910"
-pre-commit = "^2.13.0"
-pytest = "^6.2.4"
-black = "^21.6b0"
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.5.0"
+
+[tool.poetry.group.linters.dependencies]
+bandit = "^1.7"
+black = "^24.2"
+isort = {extras = ["colors"], version = "^5.13"}
+mypy = "^1.8"
+ruff = "^0.2"
+safety = "^2.0"
+
+[tool.poetry.group.tests.dependencies]
+freezegun = "^1.2.2"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+respx = "^0.20.2"
 robotframework = "^4.0.3"
-isort = "^5.9.2"
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -61,10 +68,73 @@ line_length = 120
 src_paths = ["winregistry", "tests"]
 skip = [".mypy_cache", ".pytest_cache", "venv"]
 
-[tool.pylint.messages_control]
-disable = "missing-docstring,logging-fstring-interpolation,too-many-arguments"
+[tool.mypy]
+python_version = 3.8
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+disallow_untyped_defs = true
 
-[tool.pylint.format]
-max-line-length = "120"
-indent-string = "    "
-good-names = "i"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+exclude = [
+  ".venv",
+]
+lint.ignore = [
+  "PLR0913",  # Too many arguments to function call
+  "PTH123",   # PTH123 `open("foo")` should be replaced by `Path("foo").open()`
+  "RUF001",   # Docstring contains ambiguous chars
+  "RUF002",   # Docstring contains ambiguous chars
+  "RUF003",   # Docstring contains ambiguous chars
+]
+lint.flake8-tidy-imports.ban-relative-imports = "all"
+lint.mccabe.max-complexity = 20
+lint.select = [
+   "F",  # Pyflakes
+   "E",  # pycodestyle
+ "C90",  # mccabe
+#   "I",  # isort
+#   "N",  # pep8-naming
+#   "D",  # pydocstyle
+  "UP",  # pyupgrade
+ "YTT",  # flake8-2020
+# "ANN",  # flake8-annotations
+#   "S",  # flake8-bandit
+ "BLE",  # flake8-blind-except
+# "FBT",  # flake8-boolean-trap
+   "B",  # flake8-bugbear
+#   "A",  # flake8-builtins
+ "COM",  # flake8-commas
+  "C4",  # flake8-comprehensions
+ "DTZ",  # flake8-datetimez
+ "T10",  # flake8-debugger
+#  "EM",  # flake8-errmsg
+ "EXE",  # flake8-executable
+ "ISC",  # flake8-implicit-str-concat
+# "ICN",  # flake8-import-conventions
+   "G",  # flake8-logging-format
+ "INP",  # flake8-no-pep420
+# "PIE",  # flake8-pie
+ "T20",  # flake8-print
+#  "PT",  # flake8-pytest-style
+#   "Q",  # flake8-quotes
+ "RET",  # flake8-return
+ "SIM",  # flake8-simplify
+ "TID",  # flake8-tidy-imports
+ "TCH",  # flake8-type-checking
+ "ARG",  # flake8-unused-arguments
+ "PTH",  # flake8-use-pathlib
+ "ERA",  # eradicate
+#  "PD",  # pandas-vet
+# "PGH",  # pygrep-hooks
+  "PL",  # Pylint
+ "TRY",  # tryceratops
+ "RSE",  # flake8-raise
+ "SLF",  # flake8-self
+ "RUF",  # Ruff-specific rules
+]

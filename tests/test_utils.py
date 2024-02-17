@@ -1,7 +1,7 @@
 from winreg import HKEY_CURRENT_USER, KEY_READ
 
 from winregistry import WinRegistry
-from winregistry.utils import expand_short_root, get_access_key, parse_path
+from winregistry._utils import expand_short_root, get_access_key, parse_path
 
 TEST_REG_PATH = r"HKCU\SOFTWARE\_REMOVE_ME_"
 
@@ -29,7 +29,7 @@ def test_parse_path() -> None:
 
 def test_get_key_handle() -> None:
     with WinRegistry() as reg:
-        # pylint: disable=protected-access
+
         handler = reg._get_handler(
             r"HKCU\SOFTWARE",
             access=KEY_READ,

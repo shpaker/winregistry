@@ -1,5 +1,8 @@
 import winreg
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum, IntEnum
+from typing import Any, List, Optional
 
 
 class ShortRootAlias(Enum):
@@ -25,3 +28,20 @@ class WinregType(IntEnum):
     REG_RESOURCE_REQUIREMENTS_LIST = winreg.REG_RESOURCE_REQUIREMENTS_LIST
     REG_QWORD = winreg.REG_QWORD
     REG_QWORD_LITTLE_ENDIAN = winreg.REG_QWORD_LITTLE_ENDIAN
+
+
+@dataclass(frozen=True)
+class RegEntry:
+    name: str
+    reg_key: str
+    value: Any
+    type: WinregType
+    host: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class RegKey:
+    name: str
+    reg_keys: List[str]
+    entries: List[RegEntry]
+    modify_at: datetime
