@@ -1,25 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
-from winreg import (
-    KEY_READ,
-    KEY_SET_VALUE,
-    KEY_WRITE,
-    ConnectRegistry,
-    CreateKeyEx,
-    DeleteKey,
-    DeleteValue,
-    EnumKey,
-    EnumValue,
-    HKEYType,
-    OpenKey,
-    QueryInfoKey,
-    QueryValueEx,
-    SetValueEx,
-)
+from typing import Any, Optional, Union, Type
 
-from winregistry.consts import WinregType
-from winregistry.models import RegEntry, RegKey
-from winregistry.utils import get_access_key, parse_path
+import winreg
+from winregistry._types import WinregType
+from winregistry._types import RegEntry, RegKey
+from winregistry._utils import get_access_key, parse_path
 
 
 class WinRegistry:
@@ -28,27 +13,26 @@ class WinRegistry:
         host: Optional[str] = None,
     ) -> None:
         self.host: Optional[str] = host
-        self._client: Optional[HKEYType] = None
+        self._client: Optional[winreg.HKEYType] = None
         self._handler = None
-        self._root: Optional[HKEYType] = None
+        self._root: Optional[winreg.HKEYType] = None
 
     def _get_handler(
         self,
         key: str,
         access: int,
         key_wow64_32key: bool,
-    ) -> HKEYType:
+    ) -> winreg.HKEYType:
         root, path = parse_path(key)
         access_key = get_access_key(access, key_wow64_32key)
         if not self._client or root != self._root:
-            self._client = ConnectRegistry(self.host, root)
-        key_handle = OpenKey(
+            self._client = winreg.ConnectRegistry(self.host, root)
+        return winreg.OpenKey(
             key=self._client,
             sub_key=path,
             reserved=0,
             access=access_key,
         )
-        return key_handle
 
     def close(self) -> None:
         if self._client:
@@ -57,9 +41,14 @@ class WinRegistry:
     def __enter__(self) -> "WinRegistry":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_value: Optional[BaseException] = None,
+        traceback: Optional[Any] = None,
+    ) -> None:
         self.close()
-        if exc_val:
+        if exc_value:
             raise
 
     def read_entry(
@@ -68,8 +57,8 @@ class WinRegistry:
         name: str,
         key_wow64_32key: bool = False,
     ) -> RegEntry:
-        handle = self._get_handler(reg_key, KEY_READ, key_wow64_32key)
-        raw_value, raw_type = QueryValueEx(handle, name)
+        handle = self._get_handler(reg_key, winreg.KEY_READ, key_wow64_32key)
+        raw_value, raw_type = winreg.QueryValueEx(handle, name)
         return RegEntry(
             reg_key=reg_key,
             name=name,
@@ -88,8 +77,8 @@ class WinRegistry:
     ) -> None:
         if isinstance(reg_type, int):
             reg_type = WinregType(reg_type)
-        handle = self._get_handler(reg_key, KEY_SET_VALUE, key_wow64_32key)
-        SetValueEx(handle, name, 0, reg_type.value, value)
+        handle = self._get_handler(reg_key, winreg.KEY_SET_VALUE, key_wow64_32key)
+        winreg.SetValueEx(handle, name, 0, reg_type.value, value)
 
     def delete_entry(
         self,
@@ -97,23 +86,23 @@ class WinRegistry:
         name: str,
         key_wow64_32key: bool = False,
     ) -> None:
-        handle = self._get_handler(key, KEY_SET_VALUE, key_wow64_32key)
-        DeleteValue(handle, name)
+        handle = self._get_handler(key, winreg.KEY_SET_VALUE, key_wow64_32key)
+        winreg.DeleteValue(handle, name)
 
     def read_key(
         self,
         name: str,
         key_wow64_32key: bool = False,
     ) -> RegKey:
-        handle = self._get_handler(name, KEY_READ, key_wow64_32key)
-        keys_num, values_num, modify = QueryInfoKey(handle)
+        handle = self._get_handler(name, winreg.KEY_READ, key_wow64_32key)
+        keys_num, values_num, modify = winreg.QueryInfoKey(handle)
         modify_at = datetime(1601, 1, 1) + timedelta(microseconds=modify / 10)
-        keys = list()
-        entries = list()
+        keys = []
+        entries = []
         for key_i in range(0, keys_num):
-            keys.append(EnumKey(handle, key_i))
+            keys.append(winreg.EnumKey(handle, key_i))
         for key_i in range(0, values_num):
-            entry_name, value, raw_type = EnumValue(handle, key_i)
+            entry_name, value, raw_type = winreg.EnumValue(handle, key_i)
             entries.append(
                 RegEntry(
                     reg_key=name,
@@ -121,7 +110,7 @@ class WinRegistry:
                     value=value,
                     type=WinregType(raw_type),
                     host=self.host,
-                )
+                ),
             )
         return RegKey(
             name=name,
@@ -141,16 +130,16 @@ class WinRegistry:
         while i < len(sub_keys) and not handler:
             try:
                 current = "\\".join(sub_keys[: len(sub_keys) - i])
-                handler = self._get_handler(current, KEY_WRITE, key_wow64_32key)
+                handler = self._get_handler(current, winreg.KEY_WRITE, key_wow64_32key)
             except FileNotFoundError:
                 i += 1
         before_index = len(sub_keys) - i
         tail = "\\".join(sub_keys[before_index:])
-        CreateKeyEx(
-            key=handler,  # type: ignore
+        winreg.CreateKeyEx(
+            key=handler,
             sub_key=tail,
             reserved=0,
-            access=get_access_key(KEY_WRITE),
+            access=get_access_key(winreg.KEY_WRITE),
         )
 
     def delete_key(
@@ -159,18 +148,18 @@ class WinRegistry:
         key_wow64_32key: bool = False,
     ) -> None:
         parental, key_name = name.rsplit(sep="\\", maxsplit=1)
-        handle = self._get_handler(parental, KEY_WRITE, key_wow64_32key)
-        DeleteKey(handle, key_name)
+        handle = self._get_handler(parental, winreg.KEY_WRITE, key_wow64_32key)
+        winreg.DeleteKey(handle, key_name)
 
     def delete_key_tree(
         self,
         name: str,
         key_wow64_32key: bool = False,
     ) -> None:
-        handle = self._get_handler(name, KEY_READ, key_wow64_32key)
-        keys_num, values_num, modify = QueryInfoKey(handle)  # pylint: disable=unused-variable
+        handle = self._get_handler(name, winreg.KEY_READ, key_wow64_32key)
+        keys_num, values_num, modify = winreg.QueryInfoKey(handle)
         for key_i in range(0, keys_num):
-            key = EnumKey(handle, key_i)
+            key = winreg.EnumKey(handle, key_i)
             self.delete_key_tree(f"{name}\\{key}", key_wow64_32key)
         handle.Close()
         self.delete_key(name, key_wow64_32key)
