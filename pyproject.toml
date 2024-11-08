@@ -1,70 +1,115 @@
 [tool.poetry]
 name = "winregistry"
-version = "1.1.1"
+version = "0.0.0"
 description = "Library aimed at working with Windows registry"
 authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
-readme = "readme.md"
-homepage = "https://github.com/shpaker/winregistry"
+readme = "README.md"
 repository = "https://github.com/shpaker/winregistry"
 keywords = ["windows", "registry", "regedit", "winreg"]
+license = "MIT"
 classifiers = [
     'Programming Language :: Python',
     'Framework :: Robot Framework :: Library',
-    'Environment :: Win32 (MS Windows)',
     'Operating System :: Microsoft :: Windows',
-]
-packages = [
-    { include = "winregistry" },
-    { include = "winregistry/robot" },
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.9"
 
-[tool.poetry.dev-dependencies]
-flake8 = "^3.9.2"
-pylint = "^2.9.3"
-mypy = "^0.910"
-pre-commit = "^2.13.0"
-pytest = "^6.2.4"
-black = "^21.6b0"
-robotframework = "^4.0.3"
-isort = "^5.9.2"
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.13"
+pytest = "^8.3"
+black = "^24.10"
+robotframework = ">=7.1"
+isort = "^5.13"
+ruff = "^0.7.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.isort]
+line_length = 120
+include_trailing_comma = true
+lines_between_types = 1
+use_parentheses = true
+multi_line_output = 3
+
 [tool.black]
 line-length = 120
-verbose = 1
-color = true
-exclude = '''
-(
-  /(
-      \.eggs
-    | \.git
-    | \.mypy_cache
-    | \.pytest_cache
-    | \.venv
-  )/
-)
-'''
+skip-string-normalization = true
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-line_length = 120
-src_paths = ["winregistry", "tests"]
-skip = [".mypy_cache", ".pytest_cache", "venv"]
-
-[tool.pylint.messages_control]
-disable = "missing-docstring,logging-fstring-interpolation,too-many-arguments"
-
-[tool.pylint.format]
-max-line-length = "120"
-indent-string = "    "
-good-names = "i"
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+exclude = [
+  ".venv",
+]
+lint.ignore = [
+  "PLR0913", # Too many arguments to function call
+  "RUF001", # Docstring contains ambiguous chars
+  "RUF002", # Docstring contains ambiguous chars
+  "RUF003", # Docstring contains ambiguous chars
+  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+lint.flake8-tidy-imports.ban-relative-imports = "all"
+lint.select = [
+  "F", # Pyflakes
+  # "E/W", # pycodestyle
+  "C90", # mccabe
+  # "I", # isort
+  # "N", # pep8-naming
+  # "D", # pydocstyle
+  "UP", # pyupgrade
+  "YTT", # flake8-2020
+  # "ANN", # flake8-annotations
+  # "ASYNC", # flake8-async
+  # "TRIO", # flake8-trio
+  # "S", # flake8-bandit
+  # "BLE", # flake8-blind-except
+  # "FBT", # flake8-boolean-trap
+  "B", # flake8-bugbear
+  # "A", # flake8-builtins
+  # "COM", # flake8-commas
+  # "CPY", # flake8-copyright
+  "C4", # flake8-comprehensions
+  # "DTZ", # flake8-datetimez
+  "T10", # flake8-debugger
+  # "DJ", # flake8-django
+  # "EM", # flake8-errmsg
+  # "EXE", # flake8-executable
+  # "FA", # flake8-future-annotations
+  "ISC", # flake8-implicit-str-concat
+  # "ICN", # flake8-import-conventions
+  "G", # flake8-logging-format
+  "INP", # flake8-no-pep420
+  # "PIE", # flake8-pie
+  "T20", # flake8-print
+  # "PYI", # flake8-pyi
+  # "PT", # flake8-pytest-style
+  # "Q", # flake8-quotes
+  "RSE", # flake8-raise
+  "RET", # flake8-return
+  "SLF", # flake8-self
+  # "SLOT", # flake8-slots
+  "SIM", # flake8-simplify
+  "TID", # flake8-tidy-imports
+  # "TCH", # flake8-type-checking
+  # "INT", # flake8-gettext
+  # "ARG", # flake8-unused-arguments
+  "PTH", # flake8-use-pathlib
+  # "TD", # flake8-todos
+  # "FIX", # flake8-fixme
+  "ERA", # eradicate
+  # "PD", # pandas-vet
+  # "PGH", # pygrep-hooks
+  "PL", # Pylint
+  # "TRY", # tryceratops
+  # "FLY", # flynt
+  # "NPY", # NumPy-specific rules
+  # "AIR", # Airflow
+  # "PERF", # Perflint
+  # "FURB", # refurb
+  # "LOG", # flake8-logging
+  "RUF", # Ruff-specific rules
+]
