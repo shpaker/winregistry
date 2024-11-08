@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any
 from winreg import (
     KEY_READ,
     KEY_SET_VALUE,
@@ -25,12 +25,12 @@ from winregistry.utils import get_access_key, parse_path
 class WinRegistry:
     def __init__(
         self,
-        host: Optional[str] = None,
+        host: str | None = None,
     ) -> None:
-        self.host: Optional[str] = host
-        self._client: Optional[HKEYType] = None
+        self.host: str | None = host
+        self._client: HKEYType | None = None
         self._handler = None
-        self._root: Optional[HKEYType] = None
+        self._root: HKEYType | None = None
 
     def _get_handler(
         self,
@@ -42,13 +42,12 @@ class WinRegistry:
         access_key = get_access_key(access, key_wow64_32key)
         if not self._client or root != self._root:
             self._client = ConnectRegistry(self.host, root)
-        key_handle = OpenKey(
+        return OpenKey(
             key=self._client,
             sub_key=path,
             reserved=0,
             access=access_key,
         )
-        return key_handle
 
     def close(self) -> None:
         if self._client:
@@ -83,7 +82,7 @@ class WinRegistry:
         reg_key: str,
         name: str,
         value: Any = None,
-        reg_type: Union[WinregType, int] = WinregType.REG_SZ,
+        reg_type: WinregType | int = WinregType.REG_SZ,
         key_wow64_32key: bool = False,
     ) -> None:
         if isinstance(reg_type, int):
@@ -108,8 +107,8 @@ class WinRegistry:
         handle = self._get_handler(name, KEY_READ, key_wow64_32key)
         keys_num, values_num, modify = QueryInfoKey(handle)
         modify_at = datetime(1601, 1, 1) + timedelta(microseconds=modify / 10)
-        keys = list()
-        entries = list()
+        keys = []
+        entries = []
         for key_i in range(0, keys_num):
             keys.append(EnumKey(handle, key_i))
         for key_i in range(0, values_num):

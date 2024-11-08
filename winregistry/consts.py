@@ -1,4 +1,5 @@
 import winreg
+
 from enum import Enum, IntEnum
 
 
