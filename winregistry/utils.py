@@ -1,5 +1,6 @@
+import contextlib
 import winreg
-from typing import Tuple
+
 from winreg import KEY_WOW64_32KEY, KEY_WOW64_64KEY, HKEYType
 
 from winregistry import ShortRootAlias
@@ -8,10 +9,8 @@ from winregistry import ShortRootAlias
 def expand_short_root(
     root: str,
 ) -> str:
-    try:
+    with contextlib.suppress(KeyError):
         root = ShortRootAlias[root].value
-    except KeyError:
-        pass
     return root
 
 
@@ -25,10 +24,10 @@ def get_access_key(
 
 def parse_path(
     path: str,
-) -> Tuple[HKEYType, str]:
+) -> tuple[HKEYType, str]:
     _root, key_path = path.split("\\", maxsplit=1)
     _root = expand_short_root(_root.upper())
     reg_root = getattr(winreg, _root)
     if not key_path:
-        raise ValueError('Not found key in "{}"'.format(path))
+        raise ValueError(f'Not found key in "{path}"')
     return reg_root, key_path

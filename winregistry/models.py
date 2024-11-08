@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any
 
 from winregistry.consts import WinregType
 
@@ -11,12 +11,12 @@ class RegEntry:
     reg_key: str
     value: Any
     type: WinregType
-    host: Optional[str] = None
+    host: str | None = None
 
 
 @dataclass(frozen=True)
 class RegKey:
     name: str
-    reg_keys: List[str]
-    entries: List[RegEntry]
+    reg_keys: list[str]
+    entries: list[RegEntry]
     modify_at: datetime
