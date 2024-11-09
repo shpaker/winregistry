@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "winregistry"
-version = "1.1.1"
+version = "0.0.0"
 description = "Library aimed at working with Windows registry"
 authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/shpaker/winregistry"
 keywords = ["windows", "registry", "regedit", "winreg"]
+license = "MIT"
 classifiers = [
     'Programming Language :: Python',
     'Framework :: Robot Framework :: Library',
-    'Environment :: Win32 (MS Windows)',
     'Operating System :: Microsoft :: Windows',
 ]
 
@@ -20,7 +20,7 @@ python = ">=3.9"
 mypy = "^1.13"
 pytest = "^8.3"
 black = "^24.10"
-robotframework = "^7.1"
+robotframework = ">=7.1"
 isort = "^5.13"
 ruff = "^0.7.3"
 
