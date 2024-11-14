@@ -93,6 +93,9 @@ class Value(
     def data(
         self,
     ) -> Any:
+        """
+        The data of the registry value item
+        """
         return self.raw_info.data
 
     @data.setter
@@ -100,6 +103,9 @@ class Value(
         self,
         value: Any,
     ) -> None:
+        """
+        Stores data in the value field of an open registry key
+        """
         winreg.SetValueEx(
             self._hkey,
             self._name,
@@ -113,6 +119,9 @@ class Value(
     def type(
         self,
     ) -> int:
+        """
+        An integer giving the registry type for this value
+        """
         return self.raw_info.type
 
 
@@ -160,12 +169,18 @@ class Key(
     def child_keys_count(
         self,
     ) -> int:
+        """
+        Number of sub keys this key has
+        """
         return self.raw_info.child_keys_count
 
     @property
     def values_count(
         self,
     ) -> int:
+        """
+        Number of values this key has
+        """
         return self.raw_info.values_count
 
     @property
@@ -227,6 +242,9 @@ class Key(
         self,
         sub_key: str,
     ) -> None:
+        """
+        Deletes the specified key
+        """
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 
@@ -234,6 +252,9 @@ class Key(
         self,
         name: str,
     ) -> Value:
+        """
+        Retrieves data for a specified value name
+        """
         return Value(
             hkey=self._hkey,
             name=name,
@@ -245,6 +266,9 @@ class Key(
         type: int,
         value: Any,
     ) -> None:
+        """
+        Associates a value with a specified key
+        """
         winreg.SetValueEx(self._hkey, name, 0, type, value)
         self._auto_refresh()
 
@@ -252,12 +276,18 @@ class Key(
         self,
         name: str,
     ) -> None:
+        """
+        Removes a named value from a registry key
+        """
         winreg.DeleteValue(self._hkey, name)
         self._auto_refresh()
 
     def close(
         self,
     ) -> None:
+        """
+        Closes a previously opened registry key
+        """
         self._hkey.Close()
 
     def __enter__(
@@ -279,6 +309,9 @@ def connect_registry(
     computer_name: str | None = None,
     auto_refresh: bool = True,
 ) -> Key:
+    """
+    Establishes a connection with registry
+    """
     return Key(
         hkey=winreg.ConnectRegistry(computer_name, key),
         auto_refresh=auto_refresh,
