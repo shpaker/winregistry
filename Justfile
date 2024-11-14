@@ -1,14 +1,14 @@
-SOURCE_DIR := "winregistry"
+SOURCE_DIR := "winregistry.py"
 
 tests: pytest
 fmt: black isort
 
 isort:
-  poetry run isort {{ SOURCE_DIR }} --diff
+  poetry run isort {{ SOURCE_DIR }}
 #  poetry run isort test_curlify3.py --diff
 
 black:
-  poetry run isort {{ SOURCE_DIR }}
+  poetry run black {{ SOURCE_DIR }}
 #  poetry run isort test_curlify3.py
 
 pytest:
