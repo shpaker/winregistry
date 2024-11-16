@@ -4,24 +4,21 @@ import winreg
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from types import TracebackType
-from typing import Any, Generator
+from typing import Any
 
 from typing_extensions import Self
 
 __all__ = [
     'Key',
     'Value',
-    #
     'KeyInfo',
     'ValueInfo',
-    #
     'open_key',
     'read_value',
-    #
     'create_key',
     'delete_key',
     'read_value_data',
@@ -416,8 +413,7 @@ def create_key(key_name: str) -> None:
 
 def child_keys_names(key_name: str) -> None:
     with open_key(key_name) as client:
-        for name in client.child_keys_names:
-            yield name
+        yield from client.child_keys_names
 
 
 def delete_key(key_name: str) -> None:
