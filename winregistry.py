@@ -80,7 +80,6 @@ class RegEntity(
 class Value(
     RegEntity,
 ):
-    raw_info: ValueInfo
 
     def __init__(
         self,
@@ -161,7 +160,6 @@ class Value(
 class Key(
     RegEntity,
 ):
-    raw_info: KeyInfo
 
     def __init__(
         self,
@@ -176,7 +174,7 @@ class Key(
     def refresh(
         self,
     ) -> None:
-        self._raw_info = KeyInfo(
+        self._info = KeyInfo(
             *winreg.QueryInfoKey(
                 self._hkey,
             )
@@ -220,7 +218,7 @@ class Key(
     def modified_at(
         self,
     ) -> datetime:
-        return datetime(1601, 1, 1) + timedelta(microseconds=self._raw_info.modified_at / 10)
+        return datetime(1601, 1, 1) + timedelta(microseconds=self.info.modified_at / 10)
 
     @property
     def child_keys_names(
@@ -394,45 +392,54 @@ def open_key(
 
 
 @contextmanager
-def read_value(key_name: str, value_name: Any) -> Generator[Value, None, None]:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+def read_value(
+    key_name: str,
+    value_name: Any,
+    auto_refresh: bool = True,
+) -> Generator[Value, None, None]:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=auto_refresh) as client:
         yield client.read_value(name=value_name)
 
 
 def read_value_data(key_name: str, value_name: Any) -> Any:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as client:
         value = client.read_value(name=value_name)
         return value.data
 
 
 def create_key(key_name: str) -> None:
     key_name, sub_key_name = key_name.split('\\', maxsplit=1)
-    with open_key(key_name, sub_key=sub_key_name, sub_key_ensure=True, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
-        client.create_key(sub_key_name)
+    sub_key_name, new_key_name = sub_key_name.rsplit('\\', maxsplit=1)
+
+    with open_key(
+        key_name, sub_key=sub_key_name, sub_key_ensure=True, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False
+    ) as client:
+        client.create_key(new_key_name)
 
 
 def child_keys_names(key_name: str) -> None:
-    with open_key(key_name) as client:
-        yield from client.child_keys_names
+    with open_key(key_name, auto_refresh=False) as key:
+        key.refresh()
+        yield from key.child_keys_names
 
 
 def delete_key(key_name: str) -> None:
     key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as client:
         client.delete_key(sub_key_name)
 
 
 def set_value(key_name: str, value_name: str, type: int, data: Any = None) -> None:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as key:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as key:
         key.set_value(name=value_name, type=type, data=data)
 
 
 def values_names(key_name: str) -> None:
-    with open_key(key_name) as client:
+    with open_key(key_name, auto_refresh=False) as client:
         for value in client.values:
             yield value.name
 
 
 def delete_value(key_name: str, value_name: str) -> None:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as key:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as key:
         key.delete_value(value_name)

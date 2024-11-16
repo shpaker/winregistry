@@ -26,7 +26,7 @@ KEY_NAME_FOR_TESTING = 'HKLM\SOFTWARE\_REMOVE_ME_'
 # create key
 winregistry.create_key(KEY_NAME_FOR_TESTING)
 winregistry.create_key(f'{KEY_NAME_FOR_TESTING}\some_subkey')
-print(winregistry.child_keys_names(f'{KEY_NAME_FOR_TESTING}\_REMOVE_ME_'))
+print(list(winregistry.child_keys_names(f'{KEY_NAME_FOR_TESTING}\_REMOVE_ME_')))
 
 # manipulations with values
 winregistry.values_names(KEY_NAME_FOR_TESTING)
@@ -38,6 +38,7 @@ print(winregistry.read_value_data(KEY_NAME_FOR_TESTING, 'smth'))
 winregistry.delete_value(KEY_NAME_FOR_TESTING, 'smth')
 
 # delete key
+winregistry.delete_key(f'{KEY_NAME_FOR_TESTING}\some_subkey')
 winregistry.delete_key(KEY_NAME_FOR_TESTING)
 ```
 

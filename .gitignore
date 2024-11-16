@@ -1,5 +1,5 @@
-.html
-.xml
+*.html
+*.xml
 .idea/
 .vscode/
 
