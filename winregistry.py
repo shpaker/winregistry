@@ -8,18 +8,28 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from types import TracebackType
-from typing import Any
+from typing import Any, Generator
 
 from typing_extensions import Self
 
 __all__ = [
-    'connect_registry',
     'Key',
     'Value',
+    #
     'KeyInfo',
     'ValueInfo',
+    #
+    'open_key',
+    'read_value',
+    #
+    'create_key',
+    'delete_key',
+    'read_value_data',
+    'set_value',
+    'delete_value',
 ]
 __version__ = '0.0.0'
+
 _STR_KEYS_MAPPING: dict[str, int] = {
     value: name
     for name, values in {
@@ -64,7 +74,7 @@ class RegEntity(
     @property
     def info(
         self,
-    ) -> tuple:
+    ) -> tuple[...]:
         if not self._info:
             self.refresh()
         return self._info
@@ -122,7 +132,7 @@ class Value(
         """
         The data of the registry value item
         """
-        return self._info.data
+        return self.info.data
 
     @data.setter
     def data(
@@ -148,7 +158,7 @@ class Value(
         """
         An integer giving the registry type for this value
         """
-        return self._info.type
+        return self.info.type
 
 
 class Key(
@@ -198,7 +208,7 @@ class Key(
         """
         Number of sub keys this key has
         """
-        return self._info.child_keys_count
+        return self.info.child_keys_count
 
     @property
     def values_count(
@@ -207,7 +217,7 @@ class Key(
         """
         Number of values this key has
         """
-        return self._info.values_count
+        return self.info.values_count
 
     @property
     def modified_at(
@@ -301,7 +311,7 @@ class Key(
         self,
         name: str,
         type: int,
-        data: Any,
+        data: Any = None,
     ) -> None:
         """
         Associates a value with a specified key
@@ -345,21 +355,23 @@ def _make_int_key(
     key: str,
     sub_key: str | None = None,
 ) -> tuple[int, str | None]:
-    key_root, key_subkey = key.split("\\", maxsplit=1) if '\\' in key else (key, None)
+    if '\\' not in key:
+        return _STR_KEYS_MAPPING[key], sub_key
+    key_root, key_subkey = key.split("\\", maxsplit=1)
     key = _STR_KEYS_MAPPING[key_root]
     sub_key = key_subkey if sub_key is None else '\\'.join((key_subkey, sub_key))
-    return key, sub_key
+    return key, sub_key.strip('\\')
 
 
 @contextmanager
-def connect_registry(
+def open_key(
     key: int | str,
     sub_key: str | None = None,
     computer_name: str | None = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
-) -> Key:
+) -> Generator[Key, None, None]:
     """
     Establishes a connection with registry
     """
@@ -382,3 +394,49 @@ def connect_registry(
             return
         with reg.create_key(sub_key, access=sub_key_access) as _key:
             yield _key
+
+
+@contextmanager
+def read_value(key_name: str, value_name: Any) -> Generator[Value, None, None]:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+        yield client.read_value(name=value_name)
+
+
+def read_value_data(key_name: str, value_name: Any) -> Any:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+        value = client.read_value(name=value_name)
+        return value.data
+
+
+def create_key(key_name: str) -> None:
+    key_name, sub_key_name = key_name.split('\\', maxsplit=1)
+    with open_key(key_name, sub_key=sub_key_name, sub_key_ensure=True, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+        client.create_key(sub_key_name)
+
+
+def child_keys_names(key_name: str) -> None:
+    with open_key(key_name) as client:
+        for name in client.child_keys_names:
+            yield name
+
+
+def delete_key(key_name: str) -> None:
+    key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as client:
+        client.delete_key(sub_key_name)
+
+
+def set_value(key_name: str, value_name: str, type: int, data: Any = None) -> None:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as key:
+        key.set_value(name=value_name, type=type, data=data)
+
+
+def values_names(key_name: str) -> None:
+    with open_key(key_name) as client:
+        for value in client.values:
+            yield value.name
+
+
+def delete_value(key_name: str, value_name: str) -> None:
+    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS) as key:
+        key.delete_value(value_name)

@@ -17,4 +17,4 @@ ruff:
   poetry run ruff check --fix {{SOURCE_DIR}}
 
 mypy:
-  poetry run mypy --pretty -p {{SOURCE_DIR}}
+  poetry run mypy --pretty {{SOURCE_DIR}}
