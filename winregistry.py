@@ -1,16 +1,11 @@
-from __future__ import annotations
-
 import winreg
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from types import TracebackType
-from typing import Any
-
-from typing_extensions import Self
+from typing import Any, Dict, Generator, Iterator, List, Optional, Tuple, Type, Union
 
 __all__ = [
     'Key',
@@ -18,16 +13,12 @@ __all__ = [
     'KeyInfo',
     'ValueInfo',
     'open_key',
-    'read_value',
-    'create_key',
-    'delete_key',
-    'read_value_data',
-    'set_value',
-    'delete_value',
+    'open_value',
+    'robot',
 ]
 __version__ = '0.0.0'
 
-_STR_KEYS_MAPPING: dict[str, int] = {
+_REG_KEYS_MAPPING: Dict[str, int] = {
     value: name
     for name, values in {
         winreg.HKEY_CLASSES_ROOT: ('HKCR', "HKEY_CLASSES_ROOT"),
@@ -37,6 +28,22 @@ _STR_KEYS_MAPPING: dict[str, int] = {
         winreg.HKEY_CURRENT_CONFIG: ('HKCC', "HKEY_CURRENT_CONFIG"),
     }.items()
     for value in values
+}
+_REG_TYPES_MAPPING: Dict[str, int] = {
+    'BINARY': winreg.REG_BINARY,
+    'DWORD': winreg.REG_DWORD,
+    'DWORD_LITTLE_ENDIAN': winreg.REG_DWORD_LITTLE_ENDIAN,
+    'DWORD_BIG_ENDIAN': winreg.REG_DWORD_BIG_ENDIAN,
+    'EXPAND_SZ': winreg.REG_EXPAND_SZ,
+    'LINK': winreg.REG_LINK,
+    'MULTI_SZ': winreg.REG_MULTI_SZ,
+    'NONE': winreg.REG_NONE,
+    'QWORD': winreg.REG_QWORD,
+    'QWORD_LITTLE_ENDIAN': winreg.REG_QWORD_LITTLE_ENDIAN,
+    'RESOURCE_LIST': winreg.REG_RESOURCE_LIST,
+    'FULL_RESOURCE_DESCRIPTOR': winreg.REG_FULL_RESOURCE_DESCRIPTOR,
+    'RESOURCE_REQUIREMENTS_LIST': winreg.REG_RESOURCE_REQUIREMENTS_LIST,
+    'SZ': winreg.REG_SZ,
 }
 
 KeyInfo = namedtuple('KeyInfo', ['child_keys_count', 'values_count', 'modified_at'])
@@ -71,7 +78,7 @@ class RegEntity(
     @property
     def info(
         self,
-    ) -> tuple[...]:
+    ) -> Any:
         if not self._info:
             self.refresh()
         return self._info
@@ -80,7 +87,6 @@ class RegEntity(
 class Value(
     RegEntity,
 ):
-
     def __init__(
         self,
         hkey: winreg.HKEYType,
@@ -98,7 +104,7 @@ class Value(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Self:
+    ) -> 'Value':
         value_name, _, _ = winreg.EnumValue(key, index)
         return Value(
             key,
@@ -160,7 +166,6 @@ class Value(
 class Key(
     RegEntity,
 ):
-
     def __init__(
         self,
         hkey: winreg.HKEYType,
@@ -185,7 +190,7 @@ class Key(
         cls,
         hkey: winreg.HKEYType,
         index: int,
-    ) -> Self:
+    ) -> 'Key':
         sub_key = winreg.EnumKey(hkey, index)
         return Key(
             winreg.OpenKey(
@@ -230,7 +235,7 @@ class Key(
     @property
     def child_keys(
         self,
-    ) -> Iterator[Self]:
+    ) -> Iterator['Key']:
         for index in range(self.child_keys_count):
             yield self.from_index(
                 hkey=self._hkey,
@@ -248,7 +253,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
-    ) -> Self:
+    ) -> 'Key':
         """
         Opens the specified key
         """
@@ -265,7 +270,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
-    ) -> Self:
+    ) -> 'Key':
         """
         Creates or opens the specified key
         """
@@ -305,12 +310,14 @@ class Key(
     def set_value(
         self,
         name: str,
-        type: int,
+        type: Union[int, str],
         data: Any = None,
     ) -> None:
         """
         Associates a value with a specified key
         """
+        if isinstance(type, str):
+            type = _REG_TYPES_MAPPING[type]
         winreg.SetValueEx(self._hkey, name, 0, type, data)
         self._auto_refresh()
 
@@ -334,35 +341,35 @@ class Key(
 
     def __enter__(
         self,
-    ) -> Self:
+    ) -> 'Key':
         return self
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
     ) -> None:
         self.close()
 
 
 def _make_int_key(
     key: str,
-    sub_key: str | None = None,
-) -> tuple[int, str | None]:
+    sub_key: Optional[str] = None,
+) -> Tuple[int, Optional[str]]:
     if '\\' not in key:
-        return _STR_KEYS_MAPPING[key], sub_key
+        return _REG_KEYS_MAPPING[key], sub_key
     key_root, key_subkey = key.split("\\", maxsplit=1)
-    key = _STR_KEYS_MAPPING[key_root]
+    key = _REG_KEYS_MAPPING[key_root]
     sub_key = key_subkey if sub_key is None else '\\'.join((key_subkey, sub_key))
     return key, sub_key.strip('\\')
 
 
 @contextmanager
 def open_key(
-    key: int | str,
-    sub_key: str | None = None,
-    computer_name: str | None = None,
+    key: Union[int, str],
+    sub_key: Optional[str] = None,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
@@ -392,54 +399,154 @@ def open_key(
 
 
 @contextmanager
-def read_value(
+def open_value(
     key_name: str,
     value_name: Any,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
+    sub_key_access: int = winreg.KEY_READ,
 ) -> Generator[Value, None, None]:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=auto_refresh) as client:
+    with open_key(
+        key_name,
+        computer_name=computer_name,
+        auto_refresh=auto_refresh,
+        sub_key_access=sub_key_access,
+    ) as client:
         yield client.read_value(name=value_name)
 
 
-def read_value_data(key_name: str, value_name: Any) -> Any:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as client:
-        value = client.read_value(name=value_name)
-        return value.data
+class robot:
+    @staticmethod
+    def registry_key_should_exist(
+        key_name: str,
+    ) -> None:
+        with open_key(
+            key_name,
+            sub_key_ensure=False,
+            auto_refresh=False,
+        ) as _:
+            return
 
+    @classmethod
+    def registry_key_should_not_exist(
+        cls,
+        key_name: str,
+    ) -> None:
+        try:
+            cls.registry_key_should_exist(key_name)
+        except FileNotFoundError:
+            return
+        raise FileExistsError
 
-def create_key(key_name: str) -> None:
-    key_name, sub_key_name = key_name.split('\\', maxsplit=1)
-    sub_key_name, new_key_name = sub_key_name.rsplit('\\', maxsplit=1)
+    @staticmethod
+    def registry_value_should_exist(
+        key_name: str,
+        value_name: str,
+    ) -> None:
+        with open_value(
+            key_name,
+            value_name=value_name,
+            auto_refresh=False,
+        ) as _:
+            return
 
-    with open_key(
-        key_name, sub_key=sub_key_name, sub_key_ensure=True, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False
-    ) as client:
-        client.create_key(new_key_name)
+    @classmethod
+    def registry_value_should_not_exist(
+        cls,
+        key_name: str,
+        value_name: str,
+    ) -> None:
+        try:
+            cls.registry_value_should_exist(key_name, value_name)
+        except FileNotFoundError:
+            return
+        raise FileExistsError
 
+    @staticmethod
+    def create_registry_key(
+        key_name: str,
+    ) -> None:
+        sub_key_name = None
+        if '\\' in key_name:
+            key_name, sub_key_name = key_name.split('\\', maxsplit=1)
+        if sub_key_name and '\\' in sub_key_name:
+            sub_key_name, new_key_name = sub_key_name.rsplit('\\', maxsplit=1)
+        with open_key(
+            key_name,
+            sub_key=sub_key_name,
+            sub_key_ensure=True,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            auto_refresh=False,
+        ) as client:
+            client.create_key(new_key_name)
 
-def child_keys_names(key_name: str) -> None:
-    with open_key(key_name, auto_refresh=False) as key:
-        key.refresh()
-        yield from key.child_keys_names
+    @staticmethod
+    def delete_registry_key(
+        key_name: str,
+    ) -> None:
+        key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
+        with open_key(
+            key_name,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            auto_refresh=False,
+        ) as client:
+            client.delete_key(sub_key_name)
 
+    @staticmethod
+    def get_registry_key_sub_keys(
+        key_name: str,
+    ) -> List[str]:
+        with open_key(
+            key_name,
+            auto_refresh=False,
+        ) as key:
+            key.refresh()
+            return list(key.child_keys_names)
 
-def delete_key(key_name: str) -> None:
-    key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as client:
-        client.delete_key(sub_key_name)
+    @staticmethod
+    def get_registry_key_values_names(
+        key_name: str,
+    ) -> List[str]:
+        with open_key(
+            key_name,
+            auto_refresh=False,
+        ) as client:
+            return [value.name for value in client.values]
 
+    @staticmethod
+    def read_registry_value(
+        key_name: str,
+        value_name: Any,
+    ) -> Value:
+        with open_key(
+            key_name,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            auto_refresh=False,
+        ) as client:
+            return client.read_value(name=value_name)
 
-def set_value(key_name: str, value_name: str, type: int, data: Any = None) -> None:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as key:
-        key.set_value(name=value_name, type=type, data=data)
+    @staticmethod
+    def set_registry_value(
+        key_name: str,
+        value_name: str,
+        type: str,
+        data: Any = None,
+    ) -> None:
+        with open_key(
+            key_name,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            auto_refresh=False,
+        ) as key:
+            key.set_value(name=value_name, type=type, data=data)
 
-
-def values_names(key_name: str) -> None:
-    with open_key(key_name, auto_refresh=False) as client:
-        for value in client.values:
-            yield value.name
-
-
-def delete_value(key_name: str, value_name: str) -> None:
-    with open_key(key_name, sub_key_access=winreg.KEY_ALL_ACCESS, auto_refresh=False) as key:
-        key.delete_value(value_name)
+    @staticmethod
+    def delete_registry_value(
+        key_name: str,
+        value_name: str,
+    ) -> None:
+        with open_key(
+            key_name,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            auto_refresh=False,
+        ) as key:
+            key.delete_value(value_name)
