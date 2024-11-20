@@ -1,20 +1,23 @@
-SOURCE_DIR := "winregistry.py"
+SOURCE_FILE := "winregistry.py"
+TESTS_FILE := "winregistry_tests.robot"
 
-tests: pytest
+tests: robot
 fmt: black isort
 
 isort:
-  poetry run isort {{ SOURCE_DIR }}
+  poetry run isort {{ SOURCE_FILE }}
 
 black:
-  poetry run black {{ SOURCE_DIR }}
-
+  poetry run black {{ SOURCE_FILE }}
 
 pytest:
   poetry run pytest -vv
 
 ruff:
-  poetry run ruff check --fix {{SOURCE_DIR}}
+  poetry run ruff check --fix {{ SOURCE_FILE }}
 
 mypy:
-  poetry run mypy --pretty {{SOURCE_DIR}}
+  poetry run mypy --pretty {{ SOURCE_FILE }}
+
+robot:
+  poetry run robot {{ TESTS_FILE }}
