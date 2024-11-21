@@ -24,16 +24,9 @@ ruff = "*"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.isort]
-line_length = 120
-include_trailing_comma = true
-lines_between_types = 1
-use_parentheses = true
-multi_line_output = 3
-
 [tool.ruff]
 target-version = "py38"
-line-length = 120
+line-length = 79
 exclude = [
   ".venv",
 ]

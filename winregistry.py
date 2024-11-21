@@ -49,7 +49,9 @@ _REG_TYPES_MAPPING: dict[str, int] = {
     'SZ': winreg.REG_SZ,
 }
 
-KeyInfo = namedtuple('KeyInfo', ['child_keys_count', 'values_count', 'modified_at'])
+KeyInfo = namedtuple(
+    'KeyInfo', ['child_keys_count', 'values_count', 'modified_at']
+)
 ValueInfo = namedtuple('RawValueInfo', ['data', 'type'])
 
 
@@ -226,7 +228,9 @@ class Key(
     def modified_at(
         self,
     ) -> datetime:
-        return datetime(1601, 1, 1) + timedelta(microseconds=self.info.modified_at / 10)
+        return datetime(1601, 1, 1) + timedelta(
+            microseconds=self.info.modified_at / 10
+        )
 
     @property
     def child_keys_names(
