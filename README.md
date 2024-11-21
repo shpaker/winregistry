@@ -1,5 +1,3 @@
-from winregistry import create_key
-
 # WinRegistry
 
 [![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
@@ -25,7 +23,6 @@ from winregistry import open_key
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE\_REMOVE_ME_",
-  sub_key_ensure=True,
 ) as key:
   ...
 
@@ -54,7 +51,6 @@ with open_key(
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE\_REMOVE_ME_",
-  sub_key_ensure=True,
 ) as key:
   key.set_value(
     name="remove_me",
@@ -66,7 +62,6 @@ with open_key(
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE\_REMOVE_ME_",
-  sub_key_ensure=True,
 ) as key:
   value = key.read_value("remove_me")
 
@@ -74,7 +69,6 @@ with open_key(
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE\_REMOVE_ME_",
-  sub_key_ensure=True,
 ) as key:
   value.data = "Don't forget remove me!"
 
@@ -82,19 +76,18 @@ with open_key(
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE\_REMOVE_ME_",
-  sub_key_ensure=True,
 ) as key:
   value = key.delete_value("remove_me")
 ```
 
-## Usage with `Robot Testing Framework`
+## Usage with [Robot Testing Framework](https://robotframework.org/)
 
 ```robotframework
 *** Variables ***
-${SUITE_KEY_NAME}       HKLM\\SOFTWARE\\_ROBOT_TESTS_
-${SHORT_CASE_KEY_NAME}  _CASE_KEY_
-${CASE_KEY_NAME}        ${SUITE_KEY_NAME}\\${SHORT_CASE_KEY_NAME}
-${VALUE_NAME}           some_testing_value
+${ SUITE_KEY_NAME }       HKLM\\SOFTWARE\\_ROBOT_TESTS_
+${ SHORT_CASE_KEY_NAME }  _CASE_KEY_
+${ CASE_KEY_NAME }        ${ SUITE_KEY_NAME }\\${ SHORT_CASE_KEY_NAME }
+${ VALUE_NAME }           some_testing_value
 
 *** Settings ***
 Library         Collections
@@ -104,7 +97,7 @@ Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }
 
 *** Test Cases ***
 TEST REGISTRY KEYS
-    [Teardown]  Delete Registry Key     ${CASE_KEY_NAME}
+    [Teardown]  Delete Registry Key     ${ CASE_KEY_NAME }
 
     ${ items } =    Get Registry Key Sub Keys   ${ SUITE_KEY_NAME }
     List Should Not Contain Value   ${ items }  ${ SHORT_CASE_KEY_NAME }
@@ -122,13 +115,14 @@ TEST REGISTRY VALUES
     ${ items } =    Get Registry Key Values Names   ${ CASE_KEY_NAME }
     List Should Not Contain Value           ${ items }          ${ VALUE_NAME }
     Registry Value Should Not Exist         ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    Set Registry Value                      ${ CASE_KEY_NAME }  ${ VALUE_NAME }  SZ
+    Create Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }  SZ
     Registry Value Should Exist             ${ CASE_KEY_NAME }  ${ VALUE_NAME }
     ${ items } =    Get Registry Key Values Names   ${ CASE_KEY_NAME }
     List Should Contain Value               ${ items }          ${ VALUE_NAME }
     ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
     Should Be Equal     ${ value.data }     ${ EMPTY }
-    Set Registry Value                      ${ CASE_KEY_NAME }  ${ VALUE_NAME }  SZ     foo
+    Set Registry Value                      ${ CASE_KEY_NAME }  ${ VALUE_NAME }  Remove me!
     ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    Should Be Equal     ${ value.data }     foo
+    Should Be Equal     ${ value.data }     Remove me!
+    Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
 ```
