@@ -1,23 +1,14 @@
 SOURCE_FILE := "winregistry.py"
 TESTS_FILE := "winregistry_tests.robot"
 
-tests: robot
-fmt: black isort
+fmt:
+    poetry run ruff format -v {{ SOURCE_FILE }}
 
-isort:
-  poetry run isort {{ SOURCE_FILE }}
+lint:
+    poetry run ruff check {{ SOURCE_FILE }}
 
-black:
-  poetry run black {{ SOURCE_FILE }}
+fix:
+    poetry run ruff check --fix --unsafe-fixes {{ SOURCE_FILE }}
 
-pytest:
-  poetry run pytest -vv
-
-ruff:
-  poetry run ruff check --fix {{ SOURCE_FILE }}
-
-mypy:
-  poetry run mypy --pretty {{ SOURCE_FILE }}
-
-robot:
-  poetry run robot {{ TESTS_FILE }}
+tests:
+    poetry run robot {{ TESTS_FILE }}

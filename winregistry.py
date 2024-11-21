@@ -1,11 +1,14 @@
-import winreg
+from __future__ import annotations
 
+import winreg
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from types import TracebackType
-from typing import Any, Dict, Generator, Iterator, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Generator, Iterator
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 __all__ = [
     'Key',
@@ -18,18 +21,18 @@ __all__ = [
 ]
 __version__ = '0.0.0'
 
-_REG_KEYS_MAPPING: Dict[str, int] = {
+_REG_KEYS_MAPPING: dict[str, int] = {
     value: name
     for name, values in {
-        winreg.HKEY_CLASSES_ROOT: ('HKCR', "HKEY_CLASSES_ROOT"),
-        winreg.HKEY_CURRENT_USER: ('HKCU', "HKEY_CURRENT_USER"),
-        winreg.HKEY_LOCAL_MACHINE: ('HKLM', "HKEY_LOCAL_MACHINE"),
-        winreg.HKEY_USERS: ('HKU', "HKEY_USERS"),
-        winreg.HKEY_CURRENT_CONFIG: ('HKCC', "HKEY_CURRENT_CONFIG"),
+        winreg.HKEY_CLASSES_ROOT: ('HKCR', 'HKEY_CLASSES_ROOT'),
+        winreg.HKEY_CURRENT_USER: ('HKCU', 'HKEY_CURRENT_USER'),
+        winreg.HKEY_LOCAL_MACHINE: ('HKLM', 'HKEY_LOCAL_MACHINE'),
+        winreg.HKEY_USERS: ('HKU', 'HKEY_USERS'),
+        winreg.HKEY_CURRENT_CONFIG: ('HKCC', 'HKEY_CURRENT_CONFIG'),
     }.items()
     for value in values
 }
-_REG_TYPES_MAPPING: Dict[str, int] = {
+_REG_TYPES_MAPPING: dict[str, int] = {
     'BINARY': winreg.REG_BINARY,
     'DWORD': winreg.REG_DWORD,
     'DWORD_LITTLE_ENDIAN': winreg.REG_DWORD_LITTLE_ENDIAN,
@@ -46,7 +49,9 @@ _REG_TYPES_MAPPING: Dict[str, int] = {
     'SZ': winreg.REG_SZ,
 }
 
-KeyInfo = namedtuple('KeyInfo', ['child_keys_count', 'values_count', 'modified_at'])
+KeyInfo = namedtuple(
+    'KeyInfo', ['child_keys_count', 'values_count', 'modified_at']
+)
 ValueInfo = namedtuple('RawValueInfo', ['data', 'type'])
 
 
@@ -55,10 +60,10 @@ class RegEntity(
 ):
     def __init__(
         self,
-        hkey: winreg.HKEYType,
+        key: winreg.HKEYType,
         auto_refresh: bool,
     ) -> None:
-        self._hkey = hkey
+        self._hkey = key
         self._info = None
         self._is_auto_refreshable = auto_refresh
         self._auto_refresh()
@@ -89,13 +94,13 @@ class Value(
 ):
     def __init__(
         self,
-        hkey: winreg.HKEYType,
+        key: winreg.HKEYType,
         name: str,
         auto_refresh: bool = True,
     ) -> None:
         self._name = name
         super().__init__(
-            hkey=hkey,
+            key=key,
             auto_refresh=auto_refresh,
         )
 
@@ -104,7 +109,7 @@ class Value(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> 'Value':
+    ) -> Value:
         value_name, _, _ = winreg.EnumValue(key, index)
         return Value(
             key,
@@ -118,7 +123,7 @@ class Value(
             *winreg.QueryValueEx(
                 self._hkey,
                 self._name,
-            )
+            ),
         )
 
     @property
@@ -168,11 +173,11 @@ class Key(
 ):
     def __init__(
         self,
-        hkey: winreg.HKEYType,
+        key: winreg.HKEYType,
         auto_refresh: bool = True,
     ) -> None:
         super().__init__(
-            hkey=hkey,
+            key=key,
             auto_refresh=auto_refresh,
         )
 
@@ -182,19 +187,19 @@ class Key(
         self._info = KeyInfo(
             *winreg.QueryInfoKey(
                 self._hkey,
-            )
+            ),
         )
 
     @classmethod
     def from_index(
         cls,
-        hkey: winreg.HKEYType,
+        key: winreg.HKEYType,
         index: int,
-    ) -> 'Key':
-        sub_key = winreg.EnumKey(hkey, index)
+    ) -> Key:
+        sub_key = winreg.EnumKey(key, index)
         return Key(
             winreg.OpenKey(
-                key=hkey,
+                key=key,
                 sub_key=sub_key,
                 reserved=0,
                 access=winreg.KEY_READ,
@@ -223,7 +228,9 @@ class Key(
     def modified_at(
         self,
     ) -> datetime:
-        return datetime(1601, 1, 1) + timedelta(microseconds=self.info.modified_at / 10)
+        return datetime(1601, 1, 1) + timedelta(
+            microseconds=self.info.modified_at / 10
+        )
 
     @property
     def child_keys_names(
@@ -235,10 +242,10 @@ class Key(
     @property
     def child_keys(
         self,
-    ) -> Iterator['Key']:
+    ) -> Iterator[Key]:
         for index in range(self.child_keys_count):
             yield self.from_index(
-                hkey=self._hkey,
+                key=self._hkey,
                 index=index,
             )
 
@@ -246,14 +253,14 @@ class Key(
     def values(
         self,
     ) -> Iterator[Value]:
-        for index in range(0, self.values_count):
+        for index in range(self.values_count):
             yield Value.from_index(self._hkey, index)
 
     def open_key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
-    ) -> 'Key':
+    ) -> Key:
         """
         Opens the specified key
         """
@@ -270,7 +277,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
-    ) -> 'Key':
+    ) -> Key:
         """
         Creates or opens the specified key
         """
@@ -280,7 +287,7 @@ class Key(
                 sub_key=sub_key,
                 reserved=0,
                 access=access,
-            )
+            ),
         )
         self._auto_refresh()
         return key
@@ -303,21 +310,21 @@ class Key(
         Retrieves data for a specified value name
         """
         return Value(
-            hkey=self._hkey,
+            key=self._hkey,
             name=name,
         )
 
     def set_value(
         self,
         name: str,
-        type: Union[int, str],
+        type: int | str,  # noqa: A002
         data: Any = None,
     ) -> None:
         """
         Associates a value with a specified key
         """
         if isinstance(type, str):
-            type = _REG_TYPES_MAPPING[type]
+            type = _REG_TYPES_MAPPING[type]  # noqa: A001
         winreg.SetValueEx(self._hkey, name, 0, type, data)
         self._auto_refresh()
 
@@ -341,35 +348,35 @@ class Key(
 
     def __enter__(
         self,
-    ) -> 'Key':
+    ) -> Key:
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self.close()
 
 
 def _make_int_key(
     key: str,
-    sub_key: Optional[str] = None,
-) -> Tuple[int, Optional[str]]:
+    sub_key: str | None = None,
+) -> tuple[int, str | None]:
     if '\\' not in key:
         return _REG_KEYS_MAPPING[key], sub_key
-    key_root, key_subkey = key.split("\\", maxsplit=1)
+    key_root, key_subkey = key.split('\\', maxsplit=1)
     key = _REG_KEYS_MAPPING[key_root]
-    sub_key = key_subkey if sub_key is None else '\\'.join((key_subkey, sub_key))
+    sub_key = key_subkey if sub_key is None else f'{key_subkey}\\{sub_key}'
     return key, sub_key.strip('\\')
 
 
 @contextmanager
 def open_key(
-    key: Union[int, str],
-    sub_key: Optional[str] = None,
-    computer_name: Optional[str] = None,
+    key: int | str,
+    sub_key: str | None = None,
+    computer_name: str | None = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
@@ -380,7 +387,7 @@ def open_key(
     if isinstance(key, str):
         key, sub_key = _make_int_key(key, sub_key)
     with Key(
-        hkey=winreg.ConnectRegistry(computer_name, key),
+        key=winreg.ConnectRegistry(computer_name, key),
         auto_refresh=auto_refresh,
     ) as reg:
         if not sub_key:
@@ -402,7 +409,7 @@ def open_key(
 def open_value(
     key_name: str,
     value_name: Any,
-    computer_name: Optional[str] = None,
+    computer_name: str | None = None,
     auto_refresh: bool = True,
     sub_key_access: int = winreg.KEY_READ,
 ) -> Generator[Value, None, None]:
@@ -415,7 +422,7 @@ def open_value(
         yield client.read_value(name=value_name)
 
 
-class robot:
+class robot:  # noqa: N801
     @staticmethod
     def registry_key_should_exist(
         key_name: str,
@@ -495,7 +502,7 @@ class robot:
     @staticmethod
     def get_registry_key_sub_keys(
         key_name: str,
-    ) -> List[str]:
+    ) -> list[str]:
         with open_key(
             key_name,
             auto_refresh=False,
@@ -506,7 +513,7 @@ class robot:
     @staticmethod
     def get_registry_key_values_names(
         key_name: str,
-    ) -> List[str]:
+    ) -> list[str]:
         with open_key(
             key_name,
             auto_refresh=False,
@@ -526,10 +533,10 @@ class robot:
             return client.read_value(name=value_name)
 
     @staticmethod
-    def set_registry_value(
+    def create_registry_value(
         key_name: str,
         value_name: str,
-        type: str,
+        type: str,  # noqa: A002
         data: Any = None,
     ) -> None:
         with open_key(
@@ -538,6 +545,20 @@ class robot:
             auto_refresh=False,
         ) as key:
             key.set_value(name=value_name, type=type, data=data)
+
+    @staticmethod
+    def set_registry_value(
+        key_name: str,
+        value_name: str,
+        data: Any,
+    ) -> None:
+        with open_value(
+            key_name,
+            sub_key_access=winreg.KEY_ALL_ACCESS,
+            value_name=value_name,
+            auto_refresh=False,
+        ) as value:
+            value.data = data
 
     @staticmethod
     def delete_registry_value(

@@ -29,6 +29,7 @@ jobs:
           poetry install --no-ansi
       - run: just tests
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: ${{ matrix.PYTHON_VERSION }}_log.html
+          name: ${{ matrix.PYTHON_VERSION }}_robot_log
           path: log.html
