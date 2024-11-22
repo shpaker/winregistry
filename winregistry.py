@@ -28,7 +28,9 @@ _REG_KEYS_MAPPING: dict[str, int] = {
         winreg.HKEY_CURRENT_USER: ('HKCU', 'HKEY_CURRENT_USER'),
         winreg.HKEY_LOCAL_MACHINE: ('HKLM', 'HKEY_LOCAL_MACHINE'),
         winreg.HKEY_USERS: ('HKU', 'HKEY_USERS'),
+        winreg.HKEY_PERFORMANCE_DATA: ('HKPD', 'HKEY_PERFORMANCE_DATA'),
         winreg.HKEY_CURRENT_CONFIG: ('HKCC', 'HKEY_CURRENT_CONFIG'),
+        winreg.HKEY_DYN_DATA: ('HKDD', 'HKEY_DYN_DATA'),
     }.items()
     for value in values
 }
