@@ -32,31 +32,12 @@ with open_key(
 ) as key:
   ...
 
-# create or open sub-key
-with open_key(
-  winreg.HKEY_LOCAL_MACHINE,
-  sub_key="SOFTWARE",
-) as key:
-  with key.create_key("_REMOVE_ME_"):
-    ...
-
 # delete key
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE",
 ) as key:
   key.delete_key("_REMOVE_ME_")
-
-# set value to subkey
-with open_key(
-  winreg.HKEY_LOCAL_MACHINE,
-  sub_key="SOFTWARE\_REMOVE_ME_",
-) as key:
-  key.set_value(
-    name="remove_me",
-    type=winreg.REG_SZ,
-    value="Remove me!",
-  )
 
 # create value
 with open_key(
