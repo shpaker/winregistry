@@ -13,7 +13,7 @@ Install via PyPI:
 pip install winregistry
 ```
 
-## Advances usage
+## Usage
 
 ```python
 import winreg
