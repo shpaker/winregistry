@@ -1,4 +1,6 @@
 ---
+name: Build
+
 on:
   release:
     types: [created]

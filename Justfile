@@ -12,3 +12,6 @@ fix:
 
 tests:
     poetry run robot {{ TESTS_FILE }}
+
+doc:
+    poetry run libdoc winregistry.doc index.html
