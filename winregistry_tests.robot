@@ -43,4 +43,4 @@ TEST REGISTRY VALUES
 
 TEST RECURSIVELY DELETE KEY
     Create Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
-    Delete Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_
+    Delete Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_   recursive=True
