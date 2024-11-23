@@ -12,14 +12,19 @@ if TYPE_CHECKING:
 
 __all__ = [
     'Key',
-    'Value',
     'KeyInfo',
+    'Value',
     'ValueInfo',
     'open_key',
     'open_value',
     'robot',
 ]
+__title__ = 'winregistry'
 __version__ = '0.0.0'
+__url__ = 'https://github.com/shpaker/winregistry'
+__author__ = 'Aleksandr Shpak'
+__author_email__ = 'shpaker@gmail.com'
+__license__ = 'MIT'
 
 _REG_KEYS_MAPPING: dict[str, int] = {
     value: name
@@ -317,7 +322,6 @@ class Key(
                 auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
-                    print(entity)
                     key.delete_key(
                         entity,
                         recursive=True,
