@@ -307,7 +307,10 @@ class Key(
         Deletes the specified key
         """
         if recursive:
-            with self.open_key(sub_key, access=winreg.KEY_WRITE) as key:
+            with self.open_key(
+                sub_key,
+                access=winreg.KEY_WRITE,
+            ) as key:
                 for entity in key.child_keys_names:
                     key.delete_key(entity)
         winreg.DeleteKey(self._hkey, sub_key)
@@ -505,6 +508,7 @@ class robot:  # noqa: N801
     @staticmethod
     def delete_registry_key(
         key_name: str,
+        recursive: bool = False,
     ) -> None:
         key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
         with open_key(
@@ -512,7 +516,7 @@ class robot:  # noqa: N801
             sub_key_access=winreg.KEY_ALL_ACCESS,
             auto_refresh=False,
         ) as client:
-            client.delete_key(sub_key_name)
+            client.delete_key(sub_key_name, recursive=recursive)
 
     @staticmethod
     def get_registry_key_sub_keys(
