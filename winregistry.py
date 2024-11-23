@@ -317,6 +317,7 @@ class Key(
                 auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
+                    print(entity)
                     key.delete_key(
                         entity,
                         recursive=True,
