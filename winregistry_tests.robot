@@ -42,5 +42,8 @@ TEST REGISTRY VALUES
     Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
 
 TEST RECURSIVELY DELETE KEY
-    Create Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
-    Delete Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_   recursive=True
+    Registry Key Should Not Exist   HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
+    Create Registry Key             HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
+    Registry Key Should Exist       HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
+    Delete Registry Key             HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO   recursive=True
+    Registry Key Should Not Exist   HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
