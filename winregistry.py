@@ -262,6 +262,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
+        auto_refresh: bool = True,
     ) -> Key:
         """
         Opens the specified key
@@ -275,12 +276,14 @@ class Key(
                 reserved=0,
                 access=access,
             ),
+            auto_refresh=auto_refresh,
         )
 
     def create_key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
+        auto_refresh: bool = False,
     ) -> Key:
         """
         Creates or opens the specified key
@@ -294,6 +297,7 @@ class Key(
                 reserved=0,
                 access=access,
             ),
+            auto_refresh=auto_refresh,
         )
         self._auto_refresh()
         return key
@@ -310,6 +314,7 @@ class Key(
             with self.open_key(
                 sub_key,
                 access=winreg.KEY_WRITE,
+                auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
                     key.delete_key(entity)
@@ -410,14 +415,22 @@ def open_key(
             yield reg
             return
         try:
-            with reg.open_key(sub_key, access=sub_key_access) as _key:
+            with reg.open_key(
+                sub_key,
+                access=sub_key_access,
+                auto_refresh=auto_refresh,
+            ) as _key:
                 yield _key
         except OSError:
             if not sub_key_ensure:
                 raise
         else:
             return
-        with reg.create_key(sub_key, access=sub_key_access) as _key:
+        with reg.create_key(
+            sub_key,
+            access=sub_key_access,
+            auto_refresh=auto_refresh,
+        ) as _key:
             yield _key
 
 
