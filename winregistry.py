@@ -301,10 +301,15 @@ class Key(
     def delete_key(
         self,
         sub_key: str,
+        recursive: bool = False,
     ) -> None:
         """
         Deletes the specified key
         """
+        if recursive:
+            with self.open_key(sub_key, access=winreg.KEY_WRITE) as key:
+                for entity in key.child_keys_names:
+                    key.delete_key(entity)
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 

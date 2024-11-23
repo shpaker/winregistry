@@ -40,3 +40,7 @@ TEST REGISTRY VALUES
     ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
     Should Be Equal     ${ value.data }     Remove me!
     Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
+
+TEST RECURSIVELY DELETE KEY
+    Create Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
+    Delete Registry Key     HKLM\\SOFTWARE\\_ROBOT_TESTS_
