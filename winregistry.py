@@ -317,7 +317,10 @@ class Key(
                 auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
-                    key.delete_key(entity)
+                    key.delete_key(
+                        entity,
+                        recursive=True,
+                    )
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 
