@@ -8,7 +8,7 @@ ${ VALUE_NAME }           some_testing_value
 Library         Collections
 Library         winregistry.robot
 Suite Setup     Create Registry Key  ${ SUITE_KEY_NAME }
-Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }
+Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }   recursive=True
 
 *** Test Cases ***
 TEST REGISTRY KEYS
