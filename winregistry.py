@@ -283,7 +283,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
-        auto_refresh: bool = False,
+        auto_refresh: bool = True,
     ) -> Key:
         """
         Creates or opens the specified key
@@ -313,7 +313,7 @@ class Key(
         if recursive:
             with self.open_key(
                 sub_key,
-                access=winreg.KEY_WRITE,
+                access=winreg.KEY_WRITE | winreg.KEY_READ,
                 auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
