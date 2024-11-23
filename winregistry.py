@@ -12,14 +12,19 @@ if TYPE_CHECKING:
 
 __all__ = [
     'Key',
-    'Value',
     'KeyInfo',
+    'Value',
     'ValueInfo',
     'open_key',
     'open_value',
     'robot',
 ]
+__title__ = 'winregistry'
 __version__ = '0.0.0'
+__url__ = 'https://github.com/shpaker/winregistry'
+__author__ = 'Aleksandr Shpak'
+__author_email__ = 'shpaker@gmail.com'
+__license__ = 'MIT'
 
 _REG_KEYS_MAPPING: dict[str, int] = {
     value: name
@@ -262,6 +267,7 @@ class Key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
+        auto_refresh: bool = True,
     ) -> Key:
         """
         Opens the specified key
@@ -275,12 +281,14 @@ class Key(
                 reserved=0,
                 access=access,
             ),
+            auto_refresh=auto_refresh,
         )
 
     def create_key(
         self,
         sub_key: str,
         access: int = winreg.KEY_READ,
+        auto_refresh: bool = True,
     ) -> Key:
         """
         Creates or opens the specified key
@@ -294,6 +302,7 @@ class Key(
                 reserved=0,
                 access=access,
             ),
+            auto_refresh=auto_refresh,
         )
         self._auto_refresh()
         return key
@@ -301,10 +310,22 @@ class Key(
     def delete_key(
         self,
         sub_key: str,
+        recursive: bool = False,
     ) -> None:
         """
         Deletes the specified key
         """
+        if recursive:
+            with self.open_key(
+                sub_key,
+                access=winreg.KEY_WRITE | winreg.KEY_READ,
+                auto_refresh=False,
+            ) as key:
+                for entity in key.child_keys_names:
+                    key.delete_key(
+                        entity,
+                        recursive=True,
+                    )
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 
@@ -402,14 +423,22 @@ def open_key(
             yield reg
             return
         try:
-            with reg.open_key(sub_key, access=sub_key_access) as _key:
+            with reg.open_key(
+                sub_key,
+                access=sub_key_access,
+                auto_refresh=auto_refresh,
+            ) as _key:
                 yield _key
         except OSError:
             if not sub_key_ensure:
                 raise
         else:
             return
-        with reg.create_key(sub_key, access=sub_key_access) as _key:
+        with reg.create_key(
+            sub_key,
+            access=sub_key_access,
+            auto_refresh=auto_refresh,
+        ) as _key:
             yield _key
 
 
@@ -500,6 +529,7 @@ class robot:  # noqa: N801
     @staticmethod
     def delete_registry_key(
         key_name: str,
+        recursive: bool = False,
     ) -> None:
         key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
         with open_key(
@@ -507,7 +537,7 @@ class robot:  # noqa: N801
             sub_key_access=winreg.KEY_ALL_ACCESS,
             auto_refresh=False,
         ) as client:
-            client.delete_key(sub_key_name)
+            client.delete_key(sub_key_name, recursive=recursive)
 
     @staticmethod
     def get_registry_key_sub_keys(

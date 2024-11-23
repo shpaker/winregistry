@@ -8,7 +8,7 @@ ${ VALUE_NAME }           some_testing_value
 Library         Collections
 Library         winregistry.robot
 Suite Setup     Create Registry Key  ${ SUITE_KEY_NAME }
-Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }
+Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }   recursive=True
 
 *** Test Cases ***
 TEST REGISTRY KEYS
@@ -40,3 +40,10 @@ TEST REGISTRY VALUES
     ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
     Should Be Equal     ${ value.data }     Remove me!
     Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
+
+TEST RECURSIVELY DELETE KEY
+    Registry Key Should Not Exist   HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
+    Create Registry Key             HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
+    Registry Key Should Exist       HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
+    Delete Registry Key             HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO   recursive=True
+    Registry Key Should Not Exist   HKLM\\SOFTWARE\\_ROBOT_TESTS_\\FOO
