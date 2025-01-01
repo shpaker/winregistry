@@ -237,7 +237,7 @@ class Value(
         return self.info.data
 
     @data.setter
-    def data(self, value: Any) -> None:
+    def data(self, value: Any,) -> None:
         """
         Sets the data of the registry value.
 
@@ -306,7 +306,7 @@ class Key(
             key.refresh()
         """
         self._info = KeyInfo(
-            *winreg.QueryInfoKey(self._hkey),
+            *winreg.QueryInfoKey(self._hkey,),
         )
 
     @classmethod
@@ -335,7 +335,7 @@ class Key(
                 sub_key=sub_key,
                 reserved=0,
                 access=winreg.KEY_READ,
-            )
+            ),
         )
 
     @property
