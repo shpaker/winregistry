@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "winregistry"
 version = "0.0.0"
-description = "Library aimed at working with Windows registry"
+description = "A Python library for interacting with the Windows registry"
 authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/shpaker/winregistry"

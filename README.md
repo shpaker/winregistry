@@ -3,7 +3,15 @@
 [![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 [![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 
-Python package aimed at working with Windows Registry 
+## Project Description
+
+WinRegistry is a Python package designed to simplify interactions with the Windows Registry. It provides a high-level interface for common registry operations such as creating, reading, updating, and deleting registry keys and values. The package supports both direct registry access using `winreg` and string-based key paths for convenience. Additionally, WinRegistry integrates with the Robot Testing Framework, enabling automated registry manipulation in testing scenarios.
+
+Key features of WinRegistry include:
+- Easy-to-use context managers for registry key operations.
+- Support for both `winreg` constants and string-based key paths.
+- Methods for creating, reading, updating, and deleting registry values.
+- Integration with the Robot Testing Framework for automated testing.
 
 ## Installation
 
@@ -15,44 +23,73 @@ pip install winregistry
 
 ## Usage
 
+### Creating and Deleting Registry Keys
+
 ```python
 import winreg
-from winregistry import open_key, open_value
+from winregistry import open_key
 
-# connect to registry and ensure sub-key
+# Create a registry key
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
-  sub_key="SOFTWARE\_REMOVE_ME_",
+  sub_key="SOFTWARE\\MyApp",
+  sub_key_ensure=True,
+  sub_key_access=winreg.KEY_WRITE
 ) as key:
-  ...
+  print("Registry key created")
 
-# also you can connect to registry with string key
-with open_key(
-  "HKLM\SOFTWARE\_REMOVE_ME_",
-) as key:
-  ...
-
-# delete key
+# Delete a registry key
 with open_key(
   winreg.HKEY_LOCAL_MACHINE,
   sub_key="SOFTWARE",
+  sub_key_access=winreg.KEY_WRITE
 ) as key:
-  key.delete_key("_REMOVE_ME_")
+  key.delete_key("MyApp")
+  print("Registry key deleted")
+```
 
-# create value
+### Setting and Reading Registry Values
+
+```python
+from winregistry import open_key, open_value
+
+# Set a registry value
 with open_key(
-  "HKLM\SOFTWARE\_REMOVE_ME_", 
-  sub_key_ensure=True, 
-  sub_key_access=winreg.KEY_SET_VALUE,
+  "HKLM\\SOFTWARE\\MyApp",
+  sub_key_ensure=True,
+  sub_key_access=winreg.KEY_SET_VALUE
 ) as key:
-    key.set_value("foo", "SZ")
+  key.set_value("MyValue", "Sample Data", winreg.REG_SZ)
+  print("Registry value set")
 
-# read value
+# Read a registry value
 with open_value(
-  "HKLM\SOFTWARE\_REMOVE_ME_", 
-  value_name="remove_me",
+  "HKLM\\SOFTWARE\\MyApp",
+  value_name="MyValue"
 ) as value:
-  ...
+  print(f"Registry value: {value.data}")
+```
+
+### Enumerating Subkeys and Values
+
+```python
+from winregistry import open_key
+
+# Enumerate subkeys
+with open_key(
+  "HKLM\\SOFTWARE",
+  sub_key_access=winreg.KEY_READ
+) as key:
+  subkeys = key.enum_subkeys()
+  print(f"Subkeys: {subkeys}")
+
+# Enumerate values
+with open_key(
+  "HKLM\\SOFTWARE\\MyApp",
+  sub_key_access=winreg.KEY_READ
+) as key:
+  values = key.enum_values()
+  print(f"Values: {values}")
 ```
 
 ## Usage with [Robot Testing Framework](https://robotframework.org/)
