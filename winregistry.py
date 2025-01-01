@@ -160,7 +160,10 @@ class Value(
             auto_refresh (bool): Whether to automatically refresh the value info.
         """
         self._name = name
-        super().__init__(key=key, auto_refresh=auto_refresh)
+        super().__init__(
+            key=key,
+            auto_refresh=auto_refresh,
+        )
 
     @classmethod
     def from_index(
@@ -182,7 +185,10 @@ class Value(
             value = Value.from_index(key, index)
         """
         value_name, _, _ = winreg.EnumValue(key, index)
-        return Value(key, name=value_name)
+        return Value(
+            key,
+            name=value_name,
+        )
 
     def refresh(
         self,
@@ -193,7 +199,12 @@ class Value(
         Example:
             value.refresh()
         """
-        self._info = ValueInfo(*winreg.QueryValueEx(self._hkey, self._name))
+        self._info = ValueInfo(
+            *winreg.QueryValueEx(
+                self._hkey,
+                self._name,
+            ),
+        )
 
     @property
     def name(
@@ -236,7 +247,13 @@ class Value(
         Example:
             value.data = new_data
         """
-        winreg.SetValueEx(self._hkey, self._name, 0, self.type, value)
+        winreg.SetValueEx(
+            self._hkey,
+            self._name,
+            0,
+            self.type,
+            value,
+        )
         self._auto_refresh()
 
     @property
@@ -274,7 +291,10 @@ class Key(
             key (winreg.HKEYType): The registry key handle.
             auto_refresh (bool): Whether to automatically refresh the key info.
         """
-        super().__init__(key=key, auto_refresh=auto_refresh)
+        super().__init__(
+            key=key,
+            auto_refresh=auto_refresh,
+        )
 
     def refresh(
         self,
@@ -285,7 +305,9 @@ class Key(
         Example:
             key.refresh()
         """
-        self._info = KeyInfo(*winreg.QueryInfoKey(self._hkey))
+        self._info = KeyInfo(
+            *winreg.QueryInfoKey(self._hkey),
+        )
 
     @classmethod
     def from_index(
@@ -309,7 +331,10 @@ class Key(
         sub_key = winreg.EnumKey(key, index)
         return Key(
             winreg.OpenKey(
-                key=key, sub_key=sub_key, reserved=0, access=winreg.KEY_READ
+                key=key,
+                sub_key=sub_key,
+                reserved=0,
+                access=winreg.KEY_READ,
             )
         )
 
@@ -392,7 +417,10 @@ class Key(
                 print(sub_key)
         """
         for index in range(self.child_keys_count):
-            yield self.from_index(key=self._hkey, index=index)
+            yield self.from_index(
+                key=self._hkey,
+                index=index,
+            )
 
     @property
     def values(
@@ -436,7 +464,10 @@ class Key(
             access = access | winreg.KEY_READ
         return Key(
             winreg.OpenKey(
-                key=self._hkey, sub_key=sub_key, reserved=0, access=access
+                key=self._hkey,
+                sub_key=sub_key,
+                reserved=0,
+                access=access,
             ),
             auto_refresh=auto_refresh,
         )
@@ -466,7 +497,10 @@ class Key(
             access = access | winreg.KEY_READ
         key = Key(
             winreg.CreateKeyEx(
-                key=self._hkey, sub_key=sub_key, reserved=0, access=access
+                key=self._hkey,
+                sub_key=sub_key,
+                reserved=0,
+                access=access,
             ),
             auto_refresh=auto_refresh,
         )
@@ -495,7 +529,10 @@ class Key(
                 auto_refresh=False,
             ) as key:
                 for entity in key.child_keys_names:
-                    key.delete_key(entity, recursive=True)
+                    key.delete_key(
+                        entity,
+                        recursive=True,
+                    )
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 
