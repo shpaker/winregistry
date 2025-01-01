@@ -541,7 +541,10 @@ class Key(
         winreg.DeleteKey(self._hkey, sub_key)
         self._auto_refresh()
 
-    def read_value(self, name: str) -> Value:
+    def read_value(
+        self,
+        name: str,
+    ) -> Value:
         """
         Retrieves data for a specified value name.
 
@@ -555,7 +558,10 @@ class Key(
             value = key.read_value('MyValue')
             print(value.data)
         """
-        return Value(key=self._hkey, name=name)
+        return Value(
+            key=self._hkey,
+            name=name,
+        )
 
     def set_value(
         self,
