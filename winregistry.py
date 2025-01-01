@@ -72,12 +72,18 @@ KeyInfo = namedtuple(
 ValueInfo = namedtuple('RawValueInfo', ['data', 'type'])
 
 
-class RegEntity(ABC):
+class RegEntity(
+    ABC,
+):
     """
     Abstract base class for registry entities.
     """
 
-    def __init__(self, key: winreg.HKEYType, auto_refresh: bool) -> None:
+    def __init__(
+        self,
+        key: winreg.HKEYType,
+        auto_refresh: bool,
+    ) -> None:
         """
         Initializes a RegEntity instance.
 
@@ -91,7 +97,9 @@ class RegEntity(ABC):
         self._auto_refresh()
 
     @abstractmethod
-    def refresh(self) -> None:
+    def refresh(
+        self,
+    ) -> None:
         """
         Refreshes the entity info.
 
@@ -100,7 +108,9 @@ class RegEntity(ABC):
         """
         raise NotImplementedError
 
-    def _auto_refresh(self) -> None:
+    def _auto_refresh(
+        self,
+    ) -> None:
         """
         Automatically refreshes the entity info if auto_refresh is enabled.
 
@@ -111,7 +121,9 @@ class RegEntity(ABC):
             self.refresh()
 
     @property
-    def info(self) -> Any:
+    def info(
+        self,
+    ) -> Any:
         """
         Retrieves the entity info.
 
@@ -126,12 +138,19 @@ class RegEntity(ABC):
         return self._info
 
 
-class Value(RegEntity):
+class Value(
+    RegEntity,
+):
     """
     Represents a registry value.
     """
 
-    def __init__(self, key: winreg.HKEYType, name: str, auto_refresh: bool = True) -> None:
+    def __init__(
+        self,
+        key: winreg.HKEYType,
+        name: str,
+        auto_refresh: bool = True,
+    ) -> None:
         """
         Initializes a Value instance.
 
@@ -144,7 +163,11 @@ class Value(RegEntity):
         super().__init__(key=key, auto_refresh=auto_refresh)
 
     @classmethod
-    def from_index(cls, key: winreg.HKEYType, index: int) -> Value:
+    def from_index(
+        cls,
+        key: winreg.HKEYType,
+        index: int,
+    ) -> Value:
         """
         Creates a Value instance from the specified index.
 
@@ -161,7 +184,9 @@ class Value(RegEntity):
         value_name, _, _ = winreg.EnumValue(key, index)
         return Value(key, name=value_name)
 
-    def refresh(self) -> None:
+    def refresh(
+        self,
+    ) -> None:
         """
         Refreshes the value info.
 
@@ -171,7 +196,9 @@ class Value(RegEntity):
         self._info = ValueInfo(*winreg.QueryValueEx(self._hkey, self._name))
 
     @property
-    def name(self) -> str:
+    def name(
+        self,
+    ) -> str:
         """
         Retrieves the name of the registry value.
 
@@ -184,7 +211,9 @@ class Value(RegEntity):
         return self._name
 
     @property
-    def data(self) -> Any:
+    def data(
+        self,
+    ) -> Any:
         """
         Retrieves the data of the registry value.
 
@@ -211,7 +240,9 @@ class Value(RegEntity):
         self._auto_refresh()
 
     @property
-    def type(self) -> int:
+    def type(
+        self,
+    ) -> int:
         """
         Retrieves the type of the registry value.
 
@@ -224,12 +255,18 @@ class Value(RegEntity):
         return self.info.type
 
 
-class Key(RegEntity):
+class Key(
+    RegEntity,
+):
     """
     Represents a registry key.
     """
 
-    def __init__(self, key: winreg.HKEYType, auto_refresh: bool = True) -> None:
+    def __init__(
+        self,
+        key: winreg.HKEYType,
+        auto_refresh: bool = True,
+    ) -> None:
         """
         Initializes a Key instance.
 
@@ -239,7 +276,9 @@ class Key(RegEntity):
         """
         super().__init__(key=key, auto_refresh=auto_refresh)
 
-    def refresh(self) -> None:
+    def refresh(
+        self,
+    ) -> None:
         """
         Refreshes the key info.
 
@@ -249,7 +288,11 @@ class Key(RegEntity):
         self._info = KeyInfo(*winreg.QueryInfoKey(self._hkey))
 
     @classmethod
-    def from_index(cls, key: winreg.HKEYType, index: int) -> Key:
+    def from_index(
+        cls,
+        key: winreg.HKEYType,
+        index: int,
+    ) -> Key:
         """
         Creates a Key instance from the specified index.
 
@@ -264,10 +307,16 @@ class Key(RegEntity):
             sub_key = Key.from_index(key, index)
         """
         sub_key = winreg.EnumKey(key, index)
-        return Key(winreg.OpenKey(key=key, sub_key=sub_key, reserved=0, access=winreg.KEY_READ))
+        return Key(
+            winreg.OpenKey(
+                key=key, sub_key=sub_key, reserved=0, access=winreg.KEY_READ
+            )
+        )
 
     @property
-    def child_keys_count(self) -> int:
+    def child_keys_count(
+        self,
+    ) -> int:
         """
         Retrieves the number of sub keys this key has.
 
@@ -280,7 +329,9 @@ class Key(RegEntity):
         return self.info.child_keys_count
 
     @property
-    def values_count(self) -> int:
+    def values_count(
+        self,
+    ) -> int:
         """
         Retrieves the number of values this key has.
 
@@ -293,7 +344,9 @@ class Key(RegEntity):
         return self.info.values_count
 
     @property
-    def modified_at(self) -> datetime:
+    def modified_at(
+        self,
+    ) -> datetime:
         """
         Retrieves the last modified time of the key.
 
@@ -303,10 +356,14 @@ class Key(RegEntity):
         Example:
             modified_time = key.modified_at
         """
-        return datetime(1601, 1, 1) + timedelta(microseconds=self.info.modified_at / 10)
+        return datetime(1601, 1, 1) + timedelta(
+            microseconds=self.info.modified_at / 10
+        )
 
     @property
-    def child_keys_names(self) -> Iterator[str]:
+    def child_keys_names(
+        self,
+    ) -> Iterator[str]:
         """
         Retrieves the names of the sub keys.
 
@@ -321,7 +378,9 @@ class Key(RegEntity):
             yield winreg.EnumKey(self._hkey, index)
 
     @property
-    def child_keys(self) -> Iterator[Key]:
+    def child_keys(
+        self,
+    ) -> Iterator[Key]:
         """
         Retrieves the sub keys.
 
@@ -336,7 +395,9 @@ class Key(RegEntity):
             yield self.from_index(key=self._hkey, index=index)
 
     @property
-    def values(self) -> Iterator[Value]:
+    def values(
+        self,
+    ) -> Iterator[Value]:
         """
         Retrieves the values of the key.
 
@@ -350,7 +411,12 @@ class Key(RegEntity):
         for index in range(self.values_count):
             yield Value.from_index(self._hkey, index)
 
-    def open_key(self, sub_key: str, access: int = winreg.KEY_READ, auto_refresh: bool = True) -> Key:
+    def open_key(
+        self,
+        sub_key: str,
+        access: int = winreg.KEY_READ,
+        auto_refresh: bool = True,
+    ) -> Key:
         """
         Opens the specified sub key.
 
@@ -368,9 +434,19 @@ class Key(RegEntity):
         """
         if access != winreg.KEY_READ and self._is_auto_refreshable:
             access = access | winreg.KEY_READ
-        return Key(winreg.OpenKey(key=self._hkey, sub_key=sub_key, reserved=0, access=access), auto_refresh=auto_refresh)
+        return Key(
+            winreg.OpenKey(
+                key=self._hkey, sub_key=sub_key, reserved=0, access=access
+            ),
+            auto_refresh=auto_refresh,
+        )
 
-    def create_key(self, sub_key: str, access: int = winreg.KEY_READ, auto_refresh: bool = True) -> Key:
+    def create_key(
+        self,
+        sub_key: str,
+        access: int = winreg.KEY_READ,
+        auto_refresh: bool = True,
+    ) -> Key:
         """
         Creates or opens the specified sub key.
 
@@ -388,11 +464,20 @@ class Key(RegEntity):
         """
         if access != winreg.KEY_READ and self._is_auto_refreshable:
             access = access | winreg.KEY_READ
-        key = Key(winreg.CreateKeyEx(key=self._hkey, sub_key=sub_key, reserved=0, access=access), auto_refresh=auto_refresh)
+        key = Key(
+            winreg.CreateKeyEx(
+                key=self._hkey, sub_key=sub_key, reserved=0, access=access
+            ),
+            auto_refresh=auto_refresh,
+        )
         self._auto_refresh()
         return key
 
-    def delete_key(self, sub_key: str, recursive: bool = False) -> None:
+    def delete_key(
+        self,
+        sub_key: str,
+        recursive: bool = False,
+    ) -> None:
         """
         Deletes the specified sub key.
 
@@ -404,7 +489,11 @@ class Key(RegEntity):
             key.delete_key('MySubKey', recursive=True)
         """
         if recursive:
-            with self.open_key(sub_key, access=winreg.KEY_WRITE | winreg.KEY_READ, auto_refresh=False) as key:
+            with self.open_key(
+                sub_key,
+                access=winreg.KEY_WRITE | winreg.KEY_READ,
+                auto_refresh=False,
+            ) as key:
                 for entity in key.child_keys_names:
                     key.delete_key(entity, recursive=True)
         winreg.DeleteKey(self._hkey, sub_key)
@@ -426,7 +515,12 @@ class Key(RegEntity):
         """
         return Value(key=self._hkey, name=name)
 
-    def set_value(self, name: str, type: int | str, data: Any = None) -> None:
+    def set_value(
+        self,
+        name: str,
+        type: int | str,
+        data: Any = None,
+    ) -> None:
         """
         Associates a value with a specified key.
 
@@ -443,7 +537,10 @@ class Key(RegEntity):
         winreg.SetValueEx(self._hkey, name, 0, type, data)
         self._auto_refresh()
 
-    def delete_value(self, name: str) -> None:
+    def delete_value(
+        self,
+        name: str,
+    ) -> None:
         """
         Removes a named value from a registry key.
 
@@ -456,7 +553,9 @@ class Key(RegEntity):
         winreg.DeleteValue(self._hkey, name)
         self._auto_refresh()
 
-    def close(self) -> None:
+    def close(
+        self,
+    ) -> None:
         """
         Closes a previously opened registry key.
 
@@ -465,7 +564,9 @@ class Key(RegEntity):
         """
         self._hkey.Close()
 
-    def __enter__(self) -> Key:
+    def __enter__(
+        self,
+    ) -> Key:
         """
         Enters the runtime context related to this object.
 
@@ -478,7 +579,12 @@ class Key(RegEntity):
         """
         return self
 
-    def __exit__(self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         """
         Exits the runtime context related to this object.
 
