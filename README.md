@@ -3,15 +3,13 @@
 [![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 [![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 
-## Project Description
+A Python library for interacting with the Windows registry
 
-WinRegistry is a Python package designed to simplify interactions with the Windows Registry. It provides a high-level interface for common registry operations such as creating, reading, updating, and deleting registry keys and values. The package supports both direct registry access using `winreg` and string-based key paths for convenience. Additionally, WinRegistry integrates with the Robot Testing Framework, enabling automated registry manipulation in testing scenarios.
+## Features
 
-Key features of WinRegistry include:
-- Easy-to-use context managers for registry key operations.
-- Support for both `winreg` constants and string-based key paths.
-- Methods for creating, reading, updating, and deleting registry values.
-- Integration with the Robot Testing Framework for automated testing.
+- Easy to use API for Windows registry operations
+- Supports creating, reading, updating, and deleting registry keys and values
+- Compatible with Robot Framework for automated testing
 
 ## Installation
 
@@ -144,3 +142,65 @@ TEST REGISTRY VALUES
     Should Be Equal     ${ value.data }     Remove me!
     Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
 ```
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines for more details.
+
+### Setting Up the Development Environment
+
+We use `poetry` for dependency management and packaging. To set up your development environment, follow these steps:
+
+1. Install `poetry` if you haven't already:
+
+    ```bash
+    pip install poetry
+    ```
+
+2. Install the project dependencies:
+
+    ```bash
+    poetry install --sync
+    ```
+
+### Code Formatting and Linting
+
+We use `ruff` for code formatting and linting. The following tasks are defined in the `Justfile` to help with these processes:
+
+- **Format the code:**
+
+    ```bash
+    just fmt
+    ```
+
+- **Run the linter:**
+
+    ```bash
+    just lint
+    ```
+
+- **Fix linting issues:**
+
+    ```bash
+    just fix
+    ```
+
+### Running Tests
+
+We use `robotframework` for testing. To run the tests, use the following command:
+
+```bash
+just tests
+```
+
+### Generating Documentation
+
+To generate the documentation, use the following command:
+
+```bash
+just doc
+```
+
+## License
+
+This project is licensed under the MIT License.
