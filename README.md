@@ -179,28 +179,6 @@ We use `ruff` for code formatting and linting. The following tasks are defined i
     just lint
     ```
 
-- **Fix linting issues:**
-
-    ```bash
-    just fix
-    ```
-
-### Running Tests
-
-We use `robotframework` for testing. To run the tests, use the following command:
-
-```bash
-just tests
-```
-
-### Generating Documentation
-
-To generate the documentation, use the following command:
-
-```bash
-just doc
-```
-
 ## License
 
 This project is licensed under the MIT License.
