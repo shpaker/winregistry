@@ -14,4 +14,4 @@ tests:
     poetry run robot {{ TESTS_FILE }}
 
 doc:
-    poetry run libdoc winregistry.robot index.html
+    poetry run libdoc winregistry.robot winregistry.robot.html

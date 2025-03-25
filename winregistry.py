@@ -14,10 +14,35 @@ from abc import ABC, abstractmethod
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Generator, Iterator
+from typing import TYPE_CHECKING, Any, Generator, Iterator, Literal, TypeVar, Union, TypedDict, Optional
 
 if TYPE_CHECKING:
     from types import TracebackType
+
+# Type definitions
+RegistryValueType = Literal[
+    'BINARY', 'DWORD', 'DWORD_LITTLE_ENDIAN', 'DWORD_BIG_ENDIAN',
+    'EXPAND_SZ', 'LINK', 'MULTI_SZ', 'NONE', 'QWORD',
+    'QWORD_LITTLE_ENDIAN', 'RESOURCE_LIST',
+    'FULL_RESOURCE_DESCRIPTOR', 'RESOURCE_REQUIREMENTS_LIST', 'SZ'
+]
+
+RegistryRootKey = Literal[
+    'HKCR', 'HKEY_CLASSES_ROOT',
+    'HKCU', 'HKEY_CURRENT_USER',
+    'HKLM', 'HKEY_LOCAL_MACHINE',
+    'HKU', 'HKEY_USERS',
+    'HKPD', 'HKEY_PERFORMANCE_DATA',
+    'HKCC', 'HKEY_CURRENT_CONFIG',
+    'HKDD', 'HKEY_DYN_DATA'
+]
+
+RegistryData = Union[str, int, bytes, list[str]]
+T = TypeVar('T')
+
+class RegistryValueData(TypedDict):
+    data: RegistryData
+    type: int
 
 __all__ = [
     'Key',
@@ -159,7 +184,7 @@ class Value(
             name (str): The name of the registry value.
             auto_refresh (bool): Whether to automatically refresh the value info.
         """
-        self._name = name
+        self._name: str = name
         super().__init__(
             key=key,
             auto_refresh=auto_refresh,
@@ -224,12 +249,12 @@ class Value(
     @property
     def data(
         self,
-    ) -> Any:
+    ) -> RegistryData:
         """
         Retrieves the data of the registry value.
 
         Returns:
-            Any: The data of the registry value.
+            RegistryData: The data of the registry value.
 
         Example:
             data = value.data
@@ -239,13 +264,13 @@ class Value(
     @data.setter
     def data(
         self,
-        value: Any,
+        value: RegistryData,
     ) -> None:
         """
         Sets the data of the registry value.
 
         Args:
-            value (Any): The data to set.
+            value (RegistryData): The data to set.
 
         Example:
             value.data = new_data
@@ -566,8 +591,8 @@ class Key(
     def set_value(
         self,
         name: str,
-        type: int | str,  # noqa: A002
-        data: Any = None,
+        type: Union[int, RegistryValueType],
+        data: Optional[RegistryData] = None,
     ) -> None:
         """
         Associates a value with a specified key.
@@ -581,7 +606,7 @@ class Key(
             key.set_value('MyValue', 'SZ', 'MyData')
         """
         if isinstance(type, str):
-            type = _REG_TYPES_MAPPING[type]  # noqa: A001
+            type = _REG_TYPES_MAPPING[type]
         winreg.SetValueEx(self._hkey, name, 0, type, data)
         self._auto_refresh()
 
@@ -649,9 +674,9 @@ class Key(
 
 
 def _make_int_key(
-    key: str,
-    sub_key: str | None = None,
-) -> tuple[int, str | None]:
+    key: Union[str, RegistryRootKey],
+    sub_key: Optional[str] = None,
+) -> tuple[int, Optional[str]]:
     if '\\' not in key:
         return _REG_KEYS_MAPPING[key], sub_key
     key_root, key_subkey = key.split('\\', maxsplit=1)
@@ -662,9 +687,9 @@ def _make_int_key(
 
 @contextmanager
 def open_key(
-    key: int | str,
-    sub_key: str | None = None,
-    computer_name: str | None = None,
+    key: Union[int, str, RegistryRootKey],
+    sub_key: Optional[str] = None,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
@@ -673,7 +698,7 @@ def open_key(
     Establishes a connection with the registry.
 
     Args:
-        key (int | str): The root key or its string representation.
+        key (int | str | RegistryRootKey): The root key or its string representation.
         sub_key (str | None): The sub key to open.
         computer_name (str | None): The name of the remote computer.
         auto_refresh (bool): Whether to automatically refresh the key info.
@@ -720,9 +745,9 @@ def open_key(
 
 @contextmanager
 def open_value(
-    key_name: str,
-    value_name: Any,
-    computer_name: str | None = None,
+    key_name: Union[str, RegistryRootKey],
+    value_name: str,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
     sub_key_access: int = winreg.KEY_READ,
 ) -> Generator[Value, None, None]:
@@ -730,8 +755,8 @@ def open_value(
     Establishes a connection with the registry value.
 
     Args:
-        key_name (str): The name of the key.
-        value_name (Any): The name of the value.
+        key_name (str | RegistryRootKey): The name of the key.
+        value_name (str): The name of the value.
         computer_name (str | None): The name of the remote computer.
         auto_refresh (bool): Whether to automatically refresh the value info.
         sub_key_access (int): The access rights for the sub key.
@@ -895,7 +920,7 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_sub_keys(
-        key_name: str,
+        key_name: Union[str, RegistryRootKey],
     ) -> list[str]:
         """
         Retrieves the sub keys of a registry key.
@@ -919,7 +944,7 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_values_names(
-        key_name: str,
+        key_name: Union[str, RegistryRootKey],
     ) -> list[str]:
         """
         Retrieves the value names of a registry key.
@@ -942,8 +967,8 @@ class robot:  # noqa: N801
 
     @staticmethod
     def read_registry_value(
-        key_name: str,
-        value_name: Any,
+        key_name: Union[str, RegistryRootKey],
+        value_name: str,
     ) -> Value:
         """
         Reads a registry value.
@@ -968,10 +993,10 @@ class robot:  # noqa: N801
 
     @staticmethod
     def create_registry_value(
-        key_name: str,
+        key_name: Union[str, RegistryRootKey],
         value_name: str,
-        type: str,  # noqa: A002
-        data: Any = None,
+        type: RegistryValueType,
+        data: Optional[RegistryData] = None,
     ) -> None:
         """
         Creates a registry value.
@@ -994,9 +1019,9 @@ class robot:  # noqa: N801
 
     @staticmethod
     def set_registry_value(
-        key_name: str,
+        key_name: Union[str, RegistryRootKey],
         value_name: str,
-        data: Any,
+        data: RegistryData,
     ) -> None:
         """
         Sets a registry value.
