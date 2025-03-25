@@ -6,9 +6,12 @@ on:
 jobs:
   doc:
     runs-on: windows-latest
-    # environment:
-    #   name: github-pages
-    #   url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: extractions/setup-just@v3
       - uses: actions/setup-python@v5
