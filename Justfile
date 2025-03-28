@@ -2,16 +2,16 @@ SOURCE_FILE := "winregistry.py"
 TESTS_FILE := "winregistry_tests.robot"
 
 fmt:
-    poetry run ruff format -v {{ SOURCE_FILE }}
+    uv run ruff format -v {{ SOURCE_FILE }}
 
 lint:
-    poetry run ruff check {{ SOURCE_FILE }}
+    uv run ruff check {{ SOURCE_FILE }}
 
 fix:
-    poetry run ruff check --fix --unsafe-fixes {{ SOURCE_FILE }}
+    uv run ruff check --fix --unsafe-fixes {{ SOURCE_FILE }}
 
 tests:
-    poetry run robot {{ TESTS_FILE }}
+    uv run robot {{ TESTS_FILE }}
 
 doc:
-    poetry run libdoc winregistry.robot _doc/winregistry.robot.html
+    uv run libdoc winregistry.robot _doc/winregistry.robot.html
