@@ -7,94 +7,115 @@ License: MIT
 URL: https://github.com/shpaker/winregistry
 """
 
-from __future__ import annotations
-
 import winreg
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, Generator, Iterator, Literal, TypeVar, Union, TypedDict, Optional
-
-if TYPE_CHECKING:
-    from types import TracebackType
+from types import TracebackType
+from typing import (
+    Any,
+    Literal,
+    Self,
+    TypedDict,
+    TypeVar,
+    Union,
+)
 
 # Type definitions
 RegistryValueType = Literal[
-    'BINARY', 'DWORD', 'DWORD_LITTLE_ENDIAN', 'DWORD_BIG_ENDIAN',
-    'EXPAND_SZ', 'LINK', 'MULTI_SZ', 'NONE', 'QWORD',
-    'QWORD_LITTLE_ENDIAN', 'RESOURCE_LIST',
-    'FULL_RESOURCE_DESCRIPTOR', 'RESOURCE_REQUIREMENTS_LIST', 'SZ'
+    "BINARY",
+    "DWORD",
+    "DWORD_LITTLE_ENDIAN",
+    "DWORD_BIG_ENDIAN",
+    "EXPAND_SZ",
+    "LINK",
+    "MULTI_SZ",
+    "NONE",
+    "QWORD",
+    "QWORD_LITTLE_ENDIAN",
+    "RESOURCE_LIST",
+    "FULL_RESOURCE_DESCRIPTOR",
+    "RESOURCE_REQUIREMENTS_LIST",
+    "SZ",
 ]
 
 RegistryRootKey = Literal[
-    'HKCR', 'HKEY_CLASSES_ROOT',
-    'HKCU', 'HKEY_CURRENT_USER',
-    'HKLM', 'HKEY_LOCAL_MACHINE',
-    'HKU', 'HKEY_USERS',
-    'HKPD', 'HKEY_PERFORMANCE_DATA',
-    'HKCC', 'HKEY_CURRENT_CONFIG',
-    'HKDD', 'HKEY_DYN_DATA'
+    "HKCR",
+    "HKEY_CLASSES_ROOT",
+    "HKCU",
+    "HKEY_CURRENT_USER",
+    "HKLM",
+    "HKEY_LOCAL_MACHINE",
+    "HKU",
+    "HKEY_USERS",
+    "HKPD",
+    "HKEY_PERFORMANCE_DATA",
+    "HKCC",
+    "HKEY_CURRENT_CONFIG",
+    "HKDD",
+    "HKEY_DYN_DATA",
 ]
 
 RegistryData = Union[str, int, bytes, list[str]]
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class RegistryValueData(TypedDict):
     data: RegistryData
     type: int
 
+
 __all__ = [
-    'Key',
-    'KeyInfo',
-    'Value',
-    'ValueInfo',
-    'open_key',
-    'open_value',
-    'robot',
+    "Key",
+    "KeyInfo",
+    "Value",
+    "ValueInfo",
+    "open_key",
+    "open_value",
+    "robot",
 ]
-__title__ = 'winregistry'
-__description__ = 'A Python library for interacting with the Windows registry.'
-__version__ = '0.0.0'
-__url__ = 'https://github.com/shpaker/winregistry'
-__author__ = 'Aleksandr Shpak'
-__author_email__ = 'shpaker@gmail.com'
-__license__ = 'MIT'
+__title__ = "winregistry"
+__description__ = "A Python library for interacting with the Windows registry."
+__version__ = "0.0.0"
+__url__ = "https://github.com/shpaker/winregistry"
+__author__ = "Aleksandr Shpak"
+__author_email__ = "shpaker@gmail.com"
+__license__ = "MIT"
 
 _REG_KEYS_MAPPING: dict[str, int] = {
     value: name
     for name, values in {
-        winreg.HKEY_CLASSES_ROOT: ('HKCR', 'HKEY_CLASSES_ROOT'),
-        winreg.HKEY_CURRENT_USER: ('HKCU', 'HKEY_CURRENT_USER'),
-        winreg.HKEY_LOCAL_MACHINE: ('HKLM', 'HKEY_LOCAL_MACHINE'),
-        winreg.HKEY_USERS: ('HKU', 'HKEY_USERS'),
-        winreg.HKEY_PERFORMANCE_DATA: ('HKPD', 'HKEY_PERFORMANCE_DATA'),
-        winreg.HKEY_CURRENT_CONFIG: ('HKCC', 'HKEY_CURRENT_CONFIG'),
-        winreg.HKEY_DYN_DATA: ('HKDD', 'HKEY_DYN_DATA'),
+        winreg.HKEY_CLASSES_ROOT: ("HKCR", "HKEY_CLASSES_ROOT"),
+        winreg.HKEY_CURRENT_USER: ("HKCU", "HKEY_CURRENT_USER"),
+        winreg.HKEY_LOCAL_MACHINE: ("HKLM", "HKEY_LOCAL_MACHINE"),
+        winreg.HKEY_USERS: ("HKU", "HKEY_USERS"),
+        winreg.HKEY_PERFORMANCE_DATA: ("HKPD", "HKEY_PERFORMANCE_DATA"),
+        winreg.HKEY_CURRENT_CONFIG: ("HKCC", "HKEY_CURRENT_CONFIG"),
+        winreg.HKEY_DYN_DATA: ("HKDD", "HKEY_DYN_DATA"),
     }.items()
     for value in values
 }
 _REG_TYPES_MAPPING: dict[str, int] = {
-    'BINARY': winreg.REG_BINARY,
-    'DWORD': winreg.REG_DWORD,
-    'DWORD_LITTLE_ENDIAN': winreg.REG_DWORD_LITTLE_ENDIAN,
-    'DWORD_BIG_ENDIAN': winreg.REG_DWORD_BIG_ENDIAN,
-    'EXPAND_SZ': winreg.REG_EXPAND_SZ,
-    'LINK': winreg.REG_LINK,
-    'MULTI_SZ': winreg.REG_MULTI_SZ,
-    'NONE': winreg.REG_NONE,
-    'QWORD': winreg.REG_QWORD,
-    'QWORD_LITTLE_ENDIAN': winreg.REG_QWORD_LITTLE_ENDIAN,
-    'RESOURCE_LIST': winreg.REG_RESOURCE_LIST,
-    'FULL_RESOURCE_DESCRIPTOR': winreg.REG_FULL_RESOURCE_DESCRIPTOR,
-    'RESOURCE_REQUIREMENTS_LIST': winreg.REG_RESOURCE_REQUIREMENTS_LIST,
-    'SZ': winreg.REG_SZ,
+    "BINARY": winreg.REG_BINARY,
+    "DWORD": winreg.REG_DWORD,
+    "DWORD_LITTLE_ENDIAN": winreg.REG_DWORD_LITTLE_ENDIAN,
+    "DWORD_BIG_ENDIAN": winreg.REG_DWORD_BIG_ENDIAN,
+    "EXPAND_SZ": winreg.REG_EXPAND_SZ,
+    "LINK": winreg.REG_LINK,
+    "MULTI_SZ": winreg.REG_MULTI_SZ,
+    "NONE": winreg.REG_NONE,
+    "QWORD": winreg.REG_QWORD,
+    "QWORD_LITTLE_ENDIAN": winreg.REG_QWORD_LITTLE_ENDIAN,
+    "RESOURCE_LIST": winreg.REG_RESOURCE_LIST,
+    "FULL_RESOURCE_DESCRIPTOR": winreg.REG_FULL_RESOURCE_DESCRIPTOR,
+    "RESOURCE_REQUIREMENTS_LIST": winreg.REG_RESOURCE_REQUIREMENTS_LIST,
+    "SZ": winreg.REG_SZ,
 }
 
-KeyInfo = namedtuple(
-    'KeyInfo', ['child_keys_count', 'values_count', 'modified_at']
-)
-ValueInfo = namedtuple('RawValueInfo', ['data', 'type'])
+KeyInfo = namedtuple("KeyInfo", ["child_keys_count", "values_count", "modified_at"])
+ValueInfo = namedtuple("RawValueInfo", ["data", "type"])
 
 
 class RegEntity(
@@ -195,7 +216,7 @@ class Value(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Value:
+    ) -> Self:
         """
         Creates a Value instance from the specified index.
 
@@ -344,7 +365,7 @@ class Key(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Key:
+    ) -> Self:
         """
         Creates a Key instance from the specified index.
 
@@ -411,9 +432,7 @@ class Key(
         Example:
             modified_time = key.modified_at
         """
-        return datetime(1601, 1, 1) + timedelta(
-            microseconds=self.info.modified_at / 10
-        )
+        return datetime(1601, 1, 1) + timedelta(microseconds=self.info.modified_at / 10)
 
     @property
     def child_keys_names(
@@ -435,7 +454,7 @@ class Key(
     @property
     def child_keys(
         self,
-    ) -> Iterator[Key]:
+    ) -> Iterator[Self]:
         """
         Retrieves the sub keys.
 
@@ -474,7 +493,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Key:
+    ) -> Self:
         """
         Opens the specified sub key.
 
@@ -507,7 +526,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Key:
+    ) -> Self:
         """
         Creates or opens the specified sub key.
 
@@ -591,8 +610,8 @@ class Key(
     def set_value(
         self,
         name: str,
-        type: Union[int, RegistryValueType],
-        data: Optional[RegistryData] = None,
+        type: int | RegistryValueType,
+        data: RegistryData | None = None,
     ) -> None:
         """
         Associates a value with a specified key.
@@ -639,7 +658,7 @@ class Key(
 
     def __enter__(
         self,
-    ) -> Key:
+    ) -> Self:
         """
         Enters the runtime context related to this object.
 
@@ -674,22 +693,22 @@ class Key(
 
 
 def _make_int_key(
-    key: Union[str, RegistryRootKey],
-    sub_key: Optional[str] = None,
-) -> tuple[int, Optional[str]]:
-    if '\\' not in key:
+    key: str | RegistryRootKey,
+    sub_key: str | None = None,
+) -> tuple[int, str | None]:
+    if "\\" not in key:
         return _REG_KEYS_MAPPING[key], sub_key
-    key_root, key_subkey = key.split('\\', maxsplit=1)
+    key_root, key_subkey = key.split("\\", maxsplit=1)
     key = _REG_KEYS_MAPPING[key_root]
-    sub_key = key_subkey if sub_key is None else f'{key_subkey}\\{sub_key}'
-    return key, sub_key.strip('\\')
+    sub_key = key_subkey if sub_key is None else f"{key_subkey}\\{sub_key}"
+    return key, sub_key.strip("\\")
 
 
 @contextmanager
 def open_key(
-    key: Union[int, str, RegistryRootKey],
-    sub_key: Optional[str] = None,
-    computer_name: Optional[str] = None,
+    key: int | str | RegistryRootKey,
+    sub_key: str | None = None,
+    computer_name: str | None = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
@@ -745,9 +764,9 @@ def open_key(
 
 @contextmanager
 def open_value(
-    key_name: Union[str, RegistryRootKey],
+    key_name: str | RegistryRootKey,
     value_name: str,
-    computer_name: Optional[str] = None,
+    computer_name: str | None = None,
     auto_refresh: bool = True,
     sub_key_access: int = winreg.KEY_READ,
 ) -> Generator[Value, None, None]:
@@ -789,13 +808,13 @@ class robot:  # noqa: N801
         key_name: str,
     ) -> None:
         """
-        Checks if the specified registry key exists.
+        Verifies that the specified registry key exists.
 
-        ***Arguments:***
-        - key_name: The name of the key to check.
+        Arguments:
+            key_name: Name of the key to verify.
 
-        ***Example:***
-        | Registry Key Should Exist | HKEY_CURRENT_USER\\Software\\MyKey |
+        Example:
+            | Registry Key Should Exist | HKEY_CURRENT_USER\\Software\\MyKey |
         """
         with open_key(
             key_name,
@@ -810,13 +829,13 @@ class robot:  # noqa: N801
         key_name: str,
     ) -> None:
         """
-        Checks if the specified registry key does not exist.
+        Verifies that the specified registry key does not exist.
 
-        ***Arguments:***
-        - key_name: The name of the key to check.
+        Arguments:
+            key_name: Name of the key to verify.
 
-        ***Example:***
-        | Registry Key Should Not Exist | HKEY_CURRENT_USER\\Software\\MyKey |
+        Example:
+            | Registry Key Should Not Exist | HKEY_CURRENT_USER\\Software\\MyKey |
         """
         try:
             cls.registry_key_should_exist(key_name)
@@ -830,14 +849,14 @@ class robot:  # noqa: N801
         value_name: str,
     ) -> None:
         """
-        Checks if the specified registry value exists.
+        Verifies that the specified registry value exists.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to check.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to verify.
 
-        ***Example:***
-        | Registry Value Should Exist | HKEY_CURRENT_USER\\Software | MyValue |
+        Example:
+            | Registry Value Should Exist | HKEY_CURRENT_USER\\Software | MyValue |
         """
         with open_value(
             key_name,
@@ -853,14 +872,14 @@ class robot:  # noqa: N801
         value_name: str,
     ) -> None:
         """
-        Checks if the specified registry value does not exist.
+        Verifies that the specified registry value does not exist.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to check.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to verify.
 
-        ***Example:***
-        | Registry Value Should Not Exist | HKEY_CURRENT_USER\\Software | MyValue |
+        Example:
+            | Registry Value Should Not Exist | HKEY_CURRENT_USER\\Software | MyValue |
         """
         try:
             cls.registry_value_should_exist(key_name, value_name)
@@ -875,17 +894,17 @@ class robot:  # noqa: N801
         """
         Creates a registry key.
 
-        ***Arguments:***
-        - key_name: The name of the key to create.
+        Arguments:
+            key_name: Name of the key to create.
 
-        ***Example:***
-        | Create Registry Key | HKEY_CURRENT_USER\\Software\\MyNewKey |
+        Example:
+            | Create Registry Key | HKEY_CURRENT_USER\\Software\\MyNewKey |
         """
         sub_key_name = None
-        if '\\' in key_name:
-            key_name, sub_key_name = key_name.split('\\', maxsplit=1)
-        if sub_key_name and '\\' in sub_key_name:
-            sub_key_name, new_key_name = sub_key_name.rsplit('\\', maxsplit=1)
+        if "\\" in key_name:
+            key_name, sub_key_name = key_name.split("\\", maxsplit=1)
+        if sub_key_name and "\\" in sub_key_name:
+            sub_key_name, new_key_name = sub_key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,
             sub_key=sub_key_name,
@@ -903,14 +922,14 @@ class robot:  # noqa: N801
         """
         Deletes a registry key.
 
-        ***Arguments:***
-        - key_name: The name of the key to delete.
-        - recursive: Whether to delete sub keys recursively.
+        Arguments:
+            key_name: Name of the key to delete.
+            recursive: Whether to delete sub keys recursively.
 
-        ***Example:***
-        | Delete Registry Key | HKEY_CURRENT_USER\\Software\\MyKey | recursive=True |
+        Example:
+            | Delete Registry Key | HKEY_CURRENT_USER\\Software\\MyKey | recursive=True |
         """
-        key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
+        key_name, sub_key_name = key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,
             sub_key_access=winreg.KEY_ALL_ACCESS,
@@ -920,20 +939,20 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_sub_keys(
-        key_name: Union[str, RegistryRootKey],
+        key_name: str | RegistryRootKey,
     ) -> list[str]:
         """
-        Retrieves the sub keys of a registry key.
+        Gets a list of sub keys for the specified registry key.
 
-        ***Arguments:***
-        - key_name: The name of the key.
+        Arguments:
+            key_name: Name of the key.
 
-        ***Returns:***
-        - list[str]: The list of sub key names.
+        Returns:
+            List of sub key names.
 
-        ***Example:***
-        | ${sub_keys}= | Get Registry Key Sub Keys | HKEY_CURRENT_USER\\Software |
-        | Log | ${sub_keys} |
+        Example:
+            | ${sub_keys}= | Get Registry Key Sub Keys | HKEY_CURRENT_USER\\Software |
+            | Log | ${sub_keys} |
         """
         with open_key(
             key_name,
@@ -944,20 +963,20 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_values_names(
-        key_name: Union[str, RegistryRootKey],
+        key_name: str | RegistryRootKey,
     ) -> list[str]:
         """
-        Retrieves the value names of a registry key.
+        Gets a list of value names for the specified registry key.
 
-        ***Arguments:***
-        - key_name: The name of the key.
+        Arguments:
+            key_name: Name of the key.
 
-        ***Returns:***
-        - list[str]: The list of value names.
+        Returns:
+            List of value names.
 
-        ***Example:***
-        | ${value_names}= | Get Registry Key Values Names | HKEY_CURRENT_USER\\Software |
-        | Log | ${value_names} |
+        Example:
+            | ${value_names}= | Get Registry Key Values Names | HKEY_CURRENT_USER\\Software |
+            | Log | ${value_names} |
         """
         with open_key(
             key_name,
@@ -967,22 +986,22 @@ class robot:  # noqa: N801
 
     @staticmethod
     def read_registry_value(
-        key_name: Union[str, RegistryRootKey],
+        key_name: str | RegistryRootKey,
         value_name: str,
     ) -> Value:
         """
         Reads a registry value.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to read.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to read.
 
-        ***Returns:***
-        - Value: The registry value.
+        Returns:
+            The registry value.
 
-        ***Example:***
-        | ${value}= | Read Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
-        | Log | ${value.data} |
+        Example:
+            | ${value}= | Read Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
+            | Log | ${value.data} |
         """
         with open_key(
             key_name,
@@ -993,22 +1012,22 @@ class robot:  # noqa: N801
 
     @staticmethod
     def create_registry_value(
-        key_name: Union[str, RegistryRootKey],
+        key_name: str | RegistryRootKey,
         value_name: str,
         type: RegistryValueType,
-        data: Optional[RegistryData] = None,
+        data: RegistryData | None = None,
     ) -> None:
         """
         Creates a registry value.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to create.
-        - type: The type of the value.
-        - data: The data to set.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to create.
+            type: Type of the value.
+            data: Data to set.
 
-        ***Example:***
-        | Create Registry Value | HKEY_CURRENT_USER\\Software | MyValue | SZ | MyData |
+        Example:
+            | Create Registry Value | HKEY_CURRENT_USER\\Software | MyValue | SZ | MyData |
         """
         with open_key(
             key_name,
@@ -1019,20 +1038,20 @@ class robot:  # noqa: N801
 
     @staticmethod
     def set_registry_value(
-        key_name: Union[str, RegistryRootKey],
+        key_name: str | RegistryRootKey,
         value_name: str,
         data: RegistryData,
     ) -> None:
         """
         Sets a registry value.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to set.
-        - data: The data to set.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to set.
+            data: Data to set.
 
-        ***Example:***
-        | Set Registry Value | HKEY_CURRENT_USER\\Software | MyValue | NewData |
+        Example:
+            | Set Registry Value | HKEY_CURRENT_USER\\Software | MyValue | NewData |
         """
         with open_value(
             key_name,
@@ -1050,12 +1069,12 @@ class robot:  # noqa: N801
         """
         Deletes a registry value.
 
-        ***Arguments:***
-        - key_name: The name of the key.
-        - value_name: The name of the value to delete.
+        Arguments:
+            key_name: Name of the key.
+            value_name: Name of the value to delete.
 
-        ***Example:***
-        | Delete Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
+        Example:
+            | Delete Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
         """
         with open_key(
             key_name,
