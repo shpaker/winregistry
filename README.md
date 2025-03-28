@@ -3,13 +3,17 @@
 [![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 [![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 
-A Python library for interacting with the Windows registry
+A Python library for interacting with the Windows registry. This library provides a simple and intuitive API for performing common registry operations, making it easier to work with the Windows registry in Python applications and automated tests.
 
 ## Features
 
 - Easy to use API for Windows registry operations
 - Supports creating, reading, updating, and deleting registry keys and values
 - Compatible with Robot Framework for automated testing
+- Context managers for safe resource handling
+- Support for nested registry keys
+- Type hints for better IDE integration
+- Comprehensive error handling
 
 ## Installation
 
@@ -92,56 +96,22 @@ with open_key(
 
 ## Usage with [Robot Testing Framework](https://robotframework.org/)
 
+The library provides a Robot Framework library that makes it easy to work with the Windows registry in automated tests. The library is available as `winregistry.robot`.
+
 ### Documentation
 
+For detailed documentation of the Robot Framework library, visit:
 https://shpaker.github.io/winregistry/winregistry.robot
 
-### Example
+### Example Tests
 
-```robotframework
-*** Variables ***
-${ SUITE_KEY_NAME }       HKLM\\SOFTWARE\\_ROBOT_TESTS_
-${ SHORT_CASE_KEY_NAME }  _CASE_KEY_
-${ CASE_KEY_NAME }        ${ SUITE_KEY_NAME }\\${ SHORT_CASE_KEY_NAME }
-${ VALUE_NAME }           some_testing_value
+A complete set of example tests demonstrating various registry operations can be found in the [winregistry_tests.robot](winregistry_tests.robot) file. These tests cover:
 
-*** Settings ***
-Library         Collections
-Library         winregistry.robot
-Suite Setup     Create Registry Key  ${ SUITE_KEY_NAME }
-Suite Teardown  Delete Registry Key  ${ SUITE_KEY_NAME }
-
-*** Test Cases ***
-TEST REGISTRY KEYS
-    [Teardown]  Delete Registry Key     ${ CASE_KEY_NAME }
-
-    ${ items } =    Get Registry Key Sub Keys   ${ SUITE_KEY_NAME }
-    List Should Not Contain Value   ${ items }  ${ SHORT_CASE_KEY_NAME }
-    Registry Key Should Not Exist   ${ CASE_KEY_NAME }
-    Create Registry Key             ${ CASE_KEY_NAME }
-    Registry Key Should Exist       ${ CASE_KEY_NAME }
-    ${ items } =    Get Registry Key Sub Keys   ${ SUITE_KEY_NAME }
-    List Should Contain Value       ${ items }  ${ SHORT_CASE_KEY_NAME }
-
-
-TEST REGISTRY VALUES
-    [Setup]     Create Registry Key         ${ CASE_KEY_NAME }
-    [Teardown]  Delete Registry Key         ${ CASE_KEY_NAME }
-
-    ${ items } =    Get Registry Key Values Names   ${ CASE_KEY_NAME }
-    List Should Not Contain Value           ${ items }          ${ VALUE_NAME }
-    Registry Value Should Not Exist         ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    Create Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }  SZ
-    Registry Value Should Exist             ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    ${ items } =    Get Registry Key Values Names   ${ CASE_KEY_NAME }
-    List Should Contain Value               ${ items }          ${ VALUE_NAME }
-    ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    Should Be Equal     ${ value.data }     ${ EMPTY }
-    Set Registry Value                      ${ CASE_KEY_NAME }  ${ VALUE_NAME }  Remove me!
-    ${ value } =    Read Registry Value     ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-    Should Be Equal     ${ value.data }     Remove me!
-    Delete Registry Value                   ${ CASE_KEY_NAME }  ${ VALUE_NAME }
-```
+- Creating and deleting registry keys
+- Working with nested registry keys
+- Setting and reading registry values
+- Verifying registry key and value existence
+- Enumerating subkeys and values
 
 ## Contributing
 
