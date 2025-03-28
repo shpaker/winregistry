@@ -7,64 +7,59 @@ License: MIT
 URL: https://github.com/shpaker/winregistry
 """
 
-from __future__ import annotations
-
 import winreg
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from types import TracebackType
 from typing import (
-    TYPE_CHECKING,
     Any,
-    Generator,
-    Iterator,
     Literal,
+    Self,
     TypedDict,
     TypeVar,
     Union,
 )
 
-if TYPE_CHECKING:
-    from types import TracebackType
-
 # Type definitions
 RegistryValueType = Literal[
-    'BINARY',
-    'DWORD',
-    'DWORD_LITTLE_ENDIAN',
-    'DWORD_BIG_ENDIAN',
-    'EXPAND_SZ',
-    'LINK',
-    'MULTI_SZ',
-    'NONE',
-    'QWORD',
-    'QWORD_LITTLE_ENDIAN',
-    'RESOURCE_LIST',
-    'FULL_RESOURCE_DESCRIPTOR',
-    'RESOURCE_REQUIREMENTS_LIST',
-    'SZ',
+    "BINARY",
+    "DWORD",
+    "DWORD_LITTLE_ENDIAN",
+    "DWORD_BIG_ENDIAN",
+    "EXPAND_SZ",
+    "LINK",
+    "MULTI_SZ",
+    "NONE",
+    "QWORD",
+    "QWORD_LITTLE_ENDIAN",
+    "RESOURCE_LIST",
+    "FULL_RESOURCE_DESCRIPTOR",
+    "RESOURCE_REQUIREMENTS_LIST",
+    "SZ",
 ]
 
 RegistryRootKey = Literal[
-    'HKCR',
-    'HKEY_CLASSES_ROOT',
-    'HKCU',
-    'HKEY_CURRENT_USER',
-    'HKLM',
-    'HKEY_LOCAL_MACHINE',
-    'HKU',
-    'HKEY_USERS',
-    'HKPD',
-    'HKEY_PERFORMANCE_DATA',
-    'HKCC',
-    'HKEY_CURRENT_CONFIG',
-    'HKDD',
-    'HKEY_DYN_DATA',
+    "HKCR",
+    "HKEY_CLASSES_ROOT",
+    "HKCU",
+    "HKEY_CURRENT_USER",
+    "HKLM",
+    "HKEY_LOCAL_MACHINE",
+    "HKU",
+    "HKEY_USERS",
+    "HKPD",
+    "HKEY_PERFORMANCE_DATA",
+    "HKCC",
+    "HKEY_CURRENT_CONFIG",
+    "HKDD",
+    "HKEY_DYN_DATA",
 ]
 
 RegistryData = Union[str, int, bytes, list[str]]
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class RegistryValueData(TypedDict):
@@ -73,54 +68,54 @@ class RegistryValueData(TypedDict):
 
 
 __all__ = [
-    'Key',
-    'KeyInfo',
-    'Value',
-    'ValueInfo',
-    'open_key',
-    'open_value',
-    'robot',
+    "Key",
+    "KeyInfo",
+    "Value",
+    "ValueInfo",
+    "open_key",
+    "open_value",
+    "robot",
 ]
-__title__ = 'winregistry'
-__description__ = 'A Python library for interacting with the Windows registry.'
-__version__ = '0.0.0'
-__url__ = 'https://github.com/shpaker/winregistry'
-__author__ = 'Aleksandr Shpak'
-__author_email__ = 'shpaker@gmail.com'
-__license__ = 'MIT'
+__title__ = "winregistry"
+__description__ = "A Python library for interacting with the Windows registry."
+__version__ = "0.0.0"
+__url__ = "https://github.com/shpaker/winregistry"
+__author__ = "Aleksandr Shpak"
+__author_email__ = "shpaker@gmail.com"
+__license__ = "MIT"
 
 _REG_KEYS_MAPPING: dict[str, int] = {
     value: name
     for name, values in {
-        winreg.HKEY_CLASSES_ROOT: ('HKCR', 'HKEY_CLASSES_ROOT'),
-        winreg.HKEY_CURRENT_USER: ('HKCU', 'HKEY_CURRENT_USER'),
-        winreg.HKEY_LOCAL_MACHINE: ('HKLM', 'HKEY_LOCAL_MACHINE'),
-        winreg.HKEY_USERS: ('HKU', 'HKEY_USERS'),
-        winreg.HKEY_PERFORMANCE_DATA: ('HKPD', 'HKEY_PERFORMANCE_DATA'),
-        winreg.HKEY_CURRENT_CONFIG: ('HKCC', 'HKEY_CURRENT_CONFIG'),
-        winreg.HKEY_DYN_DATA: ('HKDD', 'HKEY_DYN_DATA'),
+        winreg.HKEY_CLASSES_ROOT: ("HKCR", "HKEY_CLASSES_ROOT"),
+        winreg.HKEY_CURRENT_USER: ("HKCU", "HKEY_CURRENT_USER"),
+        winreg.HKEY_LOCAL_MACHINE: ("HKLM", "HKEY_LOCAL_MACHINE"),
+        winreg.HKEY_USERS: ("HKU", "HKEY_USERS"),
+        winreg.HKEY_PERFORMANCE_DATA: ("HKPD", "HKEY_PERFORMANCE_DATA"),
+        winreg.HKEY_CURRENT_CONFIG: ("HKCC", "HKEY_CURRENT_CONFIG"),
+        winreg.HKEY_DYN_DATA: ("HKDD", "HKEY_DYN_DATA"),
     }.items()
     for value in values
 }
 _REG_TYPES_MAPPING: dict[str, int] = {
-    'BINARY': winreg.REG_BINARY,
-    'DWORD': winreg.REG_DWORD,
-    'DWORD_LITTLE_ENDIAN': winreg.REG_DWORD_LITTLE_ENDIAN,
-    'DWORD_BIG_ENDIAN': winreg.REG_DWORD_BIG_ENDIAN,
-    'EXPAND_SZ': winreg.REG_EXPAND_SZ,
-    'LINK': winreg.REG_LINK,
-    'MULTI_SZ': winreg.REG_MULTI_SZ,
-    'NONE': winreg.REG_NONE,
-    'QWORD': winreg.REG_QWORD,
-    'QWORD_LITTLE_ENDIAN': winreg.REG_QWORD_LITTLE_ENDIAN,
-    'RESOURCE_LIST': winreg.REG_RESOURCE_LIST,
-    'FULL_RESOURCE_DESCRIPTOR': winreg.REG_FULL_RESOURCE_DESCRIPTOR,
-    'RESOURCE_REQUIREMENTS_LIST': winreg.REG_RESOURCE_REQUIREMENTS_LIST,
-    'SZ': winreg.REG_SZ,
+    "BINARY": winreg.REG_BINARY,
+    "DWORD": winreg.REG_DWORD,
+    "DWORD_LITTLE_ENDIAN": winreg.REG_DWORD_LITTLE_ENDIAN,
+    "DWORD_BIG_ENDIAN": winreg.REG_DWORD_BIG_ENDIAN,
+    "EXPAND_SZ": winreg.REG_EXPAND_SZ,
+    "LINK": winreg.REG_LINK,
+    "MULTI_SZ": winreg.REG_MULTI_SZ,
+    "NONE": winreg.REG_NONE,
+    "QWORD": winreg.REG_QWORD,
+    "QWORD_LITTLE_ENDIAN": winreg.REG_QWORD_LITTLE_ENDIAN,
+    "RESOURCE_LIST": winreg.REG_RESOURCE_LIST,
+    "FULL_RESOURCE_DESCRIPTOR": winreg.REG_FULL_RESOURCE_DESCRIPTOR,
+    "RESOURCE_REQUIREMENTS_LIST": winreg.REG_RESOURCE_REQUIREMENTS_LIST,
+    "SZ": winreg.REG_SZ,
 }
 
-KeyInfo = namedtuple('KeyInfo', ['child_keys_count', 'values_count', 'modified_at'])
-ValueInfo = namedtuple('RawValueInfo', ['data', 'type'])
+KeyInfo = namedtuple("KeyInfo", ["child_keys_count", "values_count", "modified_at"])
+ValueInfo = namedtuple("RawValueInfo", ["data", "type"])
 
 
 class RegEntity(
@@ -221,7 +216,7 @@ class Value(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Value:
+    ) -> Self:
         """
         Creates a Value instance from the specified index.
 
@@ -370,7 +365,7 @@ class Key(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Key:
+    ) -> Self:
         """
         Creates a Key instance from the specified index.
 
@@ -459,7 +454,7 @@ class Key(
     @property
     def child_keys(
         self,
-    ) -> Iterator[Key]:
+    ) -> Iterator[Self]:
         """
         Retrieves the sub keys.
 
@@ -498,7 +493,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Key:
+    ) -> Self:
         """
         Opens the specified sub key.
 
@@ -531,7 +526,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Key:
+    ) -> Self:
         """
         Creates or opens the specified sub key.
 
@@ -663,7 +658,7 @@ class Key(
 
     def __enter__(
         self,
-    ) -> Key:
+    ) -> Self:
         """
         Enters the runtime context related to this object.
 
@@ -701,12 +696,12 @@ def _make_int_key(
     key: str | RegistryRootKey,
     sub_key: str | None = None,
 ) -> tuple[int, str | None]:
-    if '\\' not in key:
+    if "\\" not in key:
         return _REG_KEYS_MAPPING[key], sub_key
-    key_root, key_subkey = key.split('\\', maxsplit=1)
+    key_root, key_subkey = key.split("\\", maxsplit=1)
     key = _REG_KEYS_MAPPING[key_root]
-    sub_key = key_subkey if sub_key is None else f'{key_subkey}\\{sub_key}'
-    return key, sub_key.strip('\\')
+    sub_key = key_subkey if sub_key is None else f"{key_subkey}\\{sub_key}"
+    return key, sub_key.strip("\\")
 
 
 @contextmanager
@@ -906,10 +901,10 @@ class robot:  # noqa: N801
             | Create Registry Key | HKEY_CURRENT_USER\\Software\\MyNewKey |
         """
         sub_key_name = None
-        if '\\' in key_name:
-            key_name, sub_key_name = key_name.split('\\', maxsplit=1)
-        if sub_key_name and '\\' in sub_key_name:
-            sub_key_name, new_key_name = sub_key_name.rsplit('\\', maxsplit=1)
+        if "\\" in key_name:
+            key_name, sub_key_name = key_name.split("\\", maxsplit=1)
+        if sub_key_name and "\\" in sub_key_name:
+            sub_key_name, new_key_name = sub_key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,
             sub_key=sub_key_name,
@@ -934,7 +929,7 @@ class robot:  # noqa: N801
         Example:
             | Delete Registry Key | HKEY_CURRENT_USER\\Software\\MyKey | recursive=True |
         """
-        key_name, sub_key_name = key_name.rsplit('\\', maxsplit=1)
+        key_name, sub_key_name = key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,
             sub_key_access=winreg.KEY_ALL_ACCESS,

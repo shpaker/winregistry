@@ -6,7 +6,7 @@ authors = [
     {name = "Aleksandr Shpak", email = "shpaker@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = ["windows", "registry", "regedit", "winreg"]
 classifiers = [
@@ -29,7 +29,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py39"
 line-length = 120
 exclude = [
     ".venv",
@@ -63,7 +63,6 @@ lint.select = [
     "T10",  # flake8-debugger
     "EM",   # flake8-errmsg
     "EXE",  # flake8-executable
-    "FA",   # flake8-future-annotations
     "ISC",  # flake8-implicit-str-concat
     "ICN",  # flake8-import-conventions
     "G",    # flake8-logging-format
@@ -92,9 +91,3 @@ lint.select = [
     "LOG",  # flake8-logging
     "RUF",  # Ruff-specific rules
 ]
-
-[tool.ruff.format]
-quote-style = "single"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
