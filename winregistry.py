@@ -17,11 +17,15 @@ from types import TracebackType
 from typing import (
     Any,
     Literal,
-    Self,
     TypedDict,
     TypeVar,
     Union,
 )
+
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 # Type definitions
 RegistryValueType = Literal[
