@@ -22,6 +22,7 @@ from typing import (
     Literal,
     Optional,
     Tuple,
+    Type,
     TypedDict,
     TypeVar,
     Union,
@@ -679,7 +680,7 @@ class Key(
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
+        exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
         traceback: Optional[TracebackType],
     ) -> None:
@@ -687,7 +688,7 @@ class Key(
         Exits the runtime context related to this object.
 
         Args:
-            exc_type (type[BaseException] | None): The exception type.
+            exc_type (Type[BaseException] | None): The exception type.
             exc_value (BaseException | None): The exception value.
             traceback (TracebackType | None): The traceback object.
 
