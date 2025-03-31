@@ -814,7 +814,7 @@ class robot:  # noqa: N801
     All methods are static and can be called directly from Robot Framework tests.
 
     | *** Settings ***
-    | Library    winregistry
+    | Library    winregistry.robot
 
     | *** Test Cases ***
     | Check Key Existence
