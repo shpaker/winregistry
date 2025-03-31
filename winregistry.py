@@ -22,11 +22,6 @@ from typing import (
     Union,
 )
 
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
-
 # Type definitions
 RegistryValueType = Literal[
     "BINARY",
@@ -63,7 +58,9 @@ RegistryRootKey = Literal[
 ]
 
 RegistryData = Union[str, int, bytes, list[str]]
-T = TypeVar("T")
+
+KeyT = TypeVar("KeyT", bound="Key")
+ValueT = TypeVar("ValueT", bound="Value")
 
 
 class RegistryValueData(TypedDict):
@@ -220,7 +217,7 @@ class Value(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Self:
+    ) -> ValueT:
         """
         Creates a Value instance from the specified index.
 
@@ -369,7 +366,7 @@ class Key(
         cls,
         key: winreg.HKEYType,
         index: int,
-    ) -> Self:
+    ) -> KeyT:
         """
         Creates a Key instance from the specified index.
 
@@ -458,7 +455,7 @@ class Key(
     @property
     def child_keys(
         self,
-    ) -> Iterator[Self]:
+    ) -> Iterator[KeyT]:
         """
         Retrieves the sub keys.
 
@@ -497,7 +494,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Self:
+    ) -> KeyT:
         """
         Opens the specified sub key.
 
@@ -530,7 +527,7 @@ class Key(
         sub_key: str,
         access: int = winreg.KEY_READ,
         auto_refresh: bool = True,
-    ) -> Self:
+    ) -> KeyT:
         """
         Creates or opens the specified sub key.
 
@@ -662,7 +659,7 @@ class Key(
 
     def __enter__(
         self,
-    ) -> Self:
+    ) -> KeyT:
         """
         Enters the runtime context related to this object.
 
