@@ -2,27 +2,38 @@
 name = "winregistry"
 version = "0.0.0"
 description = "A Python library for interacting with the Windows registry"
-authors = [
-    {name = "Aleksandr Shpak", email = "shpaker@gmail.com"}
-]
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
+authors = [
+    {name = "Aleksandr Shpak", email = "shpaker@gmail.com"}
+]
 keywords = ["windows", "registry", "regedit", "winreg"]
 classifiers = [
     'Programming Language :: Python',
     'Framework :: Robot Framework :: Library',
     'Operating System :: Microsoft :: Windows',
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = [
-    "ruff>=0.3.0",
-]
+[project.urls]
+Homepage = "https://github.com/shpaker/winregistry/"
+Repository = "https://github.com/shpaker/winregistry/"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
+    "ruff>=0.8.2",
     "robotframework>=6.1.1",
 ]
+
+[tool.hatch.build]
+include = ["winregistry.py"]
 
 [build-system]
 requires = ["hatchling"]

@@ -40,18 +40,17 @@ wheels = [
 name = "winregistry"
 version = "0.0.0"
 source = { editable = "." }
-dependencies = [
+
+[package.dev-dependencies]
+dev = [
+    { name = "robotframework" },
     { name = "ruff" },
 ]
 
-[package.optional-dependencies]
-dev = [
-    { name = "robotframework" },
-]
-
 [package.metadata]
-requires-dist = [
-    { name = "robotframework", marker = "extra == 'dev'", specifier = ">=6.1.1" },
-    { name = "ruff", specifier = ">=0.3.0" },
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "robotframework", specifier = ">=6.1.1" },
+    { name = "ruff", specifier = ">=0.8.2" },
 ]
-provides-extras = ["dev"]
