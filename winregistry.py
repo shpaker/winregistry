@@ -10,19 +10,21 @@ URL: https://github.com/shpaker/winregistry
 import winreg
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from types import TracebackType
 from typing import (
     Any,
     Dict,
+    Generator,
+    Iterator,
     List,
     Literal,
     Optional,
+    Tuple,
     TypedDict,
     TypeVar,
-    Union, Tuple,
+    Union,
 )
 
 # Type definitions
