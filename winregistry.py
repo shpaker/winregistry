@@ -806,8 +806,57 @@ def open_value(
 
 
 class robot:  # noqa: N801
-    """
-    A class containing static methods for registry operations.
+    """Robot Framework library for Windows Registry operations.
+
+    == Table of Contents ==
+
+    %TOC%
+
+    = Usage =
+
+    The library provides a set of keywords for working with the Windows Registry in Robot Framework format.
+    All methods are static and can be called directly from Robot Framework tests.
+
+    | *** Settings ***
+    | Library    winregistry
+
+    | *** Test Cases ***
+    | Check Key Existence
+    |     Registry Key Should Exist    HKEY_CURRENT_USER\\Software\\MyApp
+
+    | Check Registry Value
+    |     ${value}=    Read Registry Value    HKEY_CURRENT_USER\\Software\\MyApp    Version
+    |     Should Be Equal    ${value.data}    1.0.0
+
+    | Create Key And Value
+    |     Create Registry Key    HKEY_CURRENT_USER\\Software\\MyApp
+    |     Create Registry Value    HKEY_CURRENT_USER\\Software\\MyApp    Version    SZ    1.0.0
+
+    = Keywords =
+
+    == Existence Checks ==
+
+    | = Keyword = | = Description = |
+    | Registry Key Should Exist | Verifies that the specified registry key exists |
+    | Registry Key Should Not Exist | Verifies that the specified registry key does not exist |
+    | Registry Value Should Exist | Verifies that the specified registry value exists |
+    | Registry Value Should Not Exist | Verifies that the specified registry value does not exist |
+
+    == Key Management ==
+
+    | = Keyword = | = Description = |
+    | Create Registry Key | Creates a new registry key |
+    | Delete Registry Key | Deletes the specified registry key |
+    | Get Registry Key Sub Keys | Returns a list of subkeys for the specified key |
+    | Get Registry Key Values Names | Returns a list of value names for the specified key |
+
+    == Value Management ==
+
+    | = Keyword = | = Description = |
+    | Read Registry Value | Reads a registry value |
+    | Create Registry Value | Creates a new registry value |
+    | Set Registry Value | Sets a registry value |
+    | Delete Registry Value | Deletes a registry value |
     """
 
     @staticmethod
@@ -821,7 +870,10 @@ class robot:  # noqa: N801
             key_name: Name of the key to verify.
 
         Example:
-            | Registry Key Should Exist | HKEY_CURRENT_USER\\Software\\MyKey |
+            | *** Test Cases ***
+            | Verify Key Exists
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Registry Key Should Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
         """
         with open_key(
             key_name,
@@ -842,7 +894,11 @@ class robot:  # noqa: N801
             key_name: Name of the key to verify.
 
         Example:
-            | Registry Key Should Not Exist | HKEY_CURRENT_USER\\Software\\MyKey |
+            | *** Test Cases ***
+            | Verify Key Does Not Exist
+            |     Registry Key Should Not Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     ${items}=    Get Registry Key Sub Keys    HKEY_LOCAL_MACHINE\\SOFTWARE
+            |     List Should Not Contain Value    ${items}    _ROBOT_TESTS_
         """
         try:
             cls.registry_key_should_exist(key_name)
@@ -863,7 +919,11 @@ class robot:  # noqa: N801
             value_name: Name of the value to verify.
 
         Example:
-            | Registry Value Should Exist | HKEY_CURRENT_USER\\Software | MyValue |
+            | *** Test Cases ***
+            | Verify Value Exists
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     Registry Value Should Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
         """
         with open_value(
             key_name,
@@ -886,7 +946,12 @@ class robot:  # noqa: N801
             value_name: Name of the value to verify.
 
         Example:
-            | Registry Value Should Not Exist | HKEY_CURRENT_USER\\Software | MyValue |
+            | *** Test Cases ***
+            | Verify Value Does Not Exist
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     ${items}=    Get Registry Key Values Names    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     List Should Not Contain Value    ${items}    some_testing_value
+            |     Registry Value Should Not Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
         """
         try:
             cls.registry_value_should_exist(key_name, value_name)
@@ -905,7 +970,13 @@ class robot:  # noqa: N801
             key_name: Name of the key to create.
 
         Example:
-            | Create Registry Key | HKEY_CURRENT_USER\\Software\\MyNewKey |
+            | *** Test Cases ***
+            | Create Key
+            |     Registry Key Should Not Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Registry Key Should Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     ${items}=    Get Registry Key Sub Keys    HKEY_LOCAL_MACHINE\\SOFTWARE
+            |     List Should Contain Value    ${items}    _ROBOT_TESTS_
         """
         sub_key_name = None
         if "\\" in key_name:
@@ -934,7 +1005,12 @@ class robot:  # noqa: N801
             recursive: Whether to delete sub keys recursively.
 
         Example:
-            | Delete Registry Key | HKEY_CURRENT_USER\\Software\\MyKey | recursive=True |
+            | *** Test Cases ***
+            | Delete Nested Keys
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
+            |     Registry Key Should Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
+            |     Delete Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ    recursive=True
+            |     Registry Key Should Not Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
         """
         key_name, sub_key_name = key_name.rsplit("\\", maxsplit=1)
         with open_key(
@@ -958,8 +1034,11 @@ class robot:  # noqa: N801
             List of sub key names.
 
         Example:
-            | ${sub_keys}= | Get Registry Key Sub Keys | HKEY_CURRENT_USER\\Software |
-            | Log | ${sub_keys} |
+            | *** Test Cases ***
+            | Get Sub Keys
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     ${items}=    Get Registry Key Sub Keys    HKEY_LOCAL_MACHINE\\SOFTWARE
+            |     List Should Contain Value    ${items}    _ROBOT_TESTS_
         """
         with open_key(
             key_name,
@@ -982,8 +1061,12 @@ class robot:  # noqa: N801
             List of value names.
 
         Example:
-            | ${value_names}= | Get Registry Key Values Names | HKEY_CURRENT_USER\\Software |
-            | Log | ${value_names} |
+            | *** Test Cases ***
+            | Get Value Names
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     ${items}=    Get Registry Key Values Names    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     List Should Contain Value    ${items}    some_testing_value
         """
         with open_key(
             key_name,
@@ -1007,8 +1090,13 @@ class robot:  # noqa: N801
             The registry value.
 
         Example:
-            | ${value}= | Read Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
-            | Log | ${value.data} |
+            | *** Test Cases ***
+            | Read Value
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     Set Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    Remove me!
+            |     ${value}=    Read Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
+            |     Should Be Equal    ${value.data}    Remove me!
         """
         with open_key(
             key_name,
@@ -1034,7 +1122,12 @@ class robot:  # noqa: N801
             data: Data to set.
 
         Example:
-            | Create Registry Value | HKEY_CURRENT_USER\\Software | MyValue | SZ | MyData |
+            | *** Test Cases ***
+            | Create Empty Value
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     ${value}=    Read Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
+            |     Should Be Equal    ${value.data}    ${EMPTY}
         """
         with open_key(
             key_name,
@@ -1058,7 +1151,13 @@ class robot:  # noqa: N801
             data: Data to set.
 
         Example:
-            | Set Registry Value | HKEY_CURRENT_USER\\Software | MyValue | NewData |
+            | *** Test Cases ***
+            | Set Value
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     Set Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    Remove me!
+            |     ${value}=    Read Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
+            |     Should Be Equal    ${value.data}    Remove me!
         """
         with open_value(
             key_name,
@@ -1081,7 +1180,14 @@ class robot:  # noqa: N801
             value_name: Name of the value to delete.
 
         Example:
-            | Delete Registry Value | HKEY_CURRENT_USER\\Software | MyValue |
+            | *** Test Cases ***
+            | Delete Value
+            |     Create Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     Create Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    SZ
+            |     Set Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value    Remove me!
+            |     Delete Registry Value    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_    some_testing_value
+            |     ${items}=    Get Registry Key Values Names    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_
+            |     List Should Not Contain Value    ${items}    some_testing_value
         """
         with open_key(
             key_name,
