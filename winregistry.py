@@ -16,10 +16,13 @@ from datetime import datetime, timedelta
 from types import TracebackType
 from typing import (
     Any,
+    Dict,
+    List,
     Literal,
+    Optional,
     TypedDict,
     TypeVar,
-    Union,
+    Union, Tuple,
 )
 
 # Type definitions
@@ -57,7 +60,7 @@ RegistryRootKey = Literal[
     "HKEY_DYN_DATA",
 ]
 
-RegistryData = Union[str, int, bytes, list[str]]
+RegistryData = Union[str, int, bytes, List[str]]
 
 KeyT = TypeVar("KeyT", bound="Key")
 ValueT = TypeVar("ValueT", bound="Value")
@@ -85,7 +88,7 @@ __author__ = "Aleksandr Shpak"
 __author_email__ = "shpaker@gmail.com"
 __license__ = "MIT"
 
-_REG_KEYS_MAPPING: dict[str, int] = {
+_REG_KEYS_MAPPING: Dict[str, int] = {
     value: name
     for name, values in {
         winreg.HKEY_CLASSES_ROOT: ("HKCR", "HKEY_CLASSES_ROOT"),
@@ -98,7 +101,7 @@ _REG_KEYS_MAPPING: dict[str, int] = {
     }.items()
     for value in values
 }
-_REG_TYPES_MAPPING: dict[str, int] = {
+_REG_TYPES_MAPPING: Dict[str, int] = {
     "BINARY": winreg.REG_BINARY,
     "DWORD": winreg.REG_DWORD,
     "DWORD_LITTLE_ENDIAN": winreg.REG_DWORD_LITTLE_ENDIAN,
@@ -611,8 +614,8 @@ class Key(
     def set_value(
         self,
         name: str,
-        type: int | RegistryValueType,
-        data: RegistryData | None = None,
+        type: Union[int, RegistryValueType],
+        data: Optional[RegistryData] = None,
     ) -> None:
         """
         Associates a value with a specified key.
@@ -674,9 +677,9 @@ class Key(
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None,
-        exc_value: BaseException | None,
-        traceback: TracebackType | None,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
     ) -> None:
         """
         Exits the runtime context related to this object.
@@ -694,9 +697,9 @@ class Key(
 
 
 def _make_int_key(
-    key: str | RegistryRootKey,
-    sub_key: str | None = None,
-) -> tuple[int, str | None]:
+    key: Union[str, RegistryRootKey],
+    sub_key: Optional[str] = None,
+) -> Tuple[int, Optional[str]]:
     if "\\" not in key:
         return _REG_KEYS_MAPPING[key], sub_key
     key_root, key_subkey = key.split("\\", maxsplit=1)
@@ -707,9 +710,9 @@ def _make_int_key(
 
 @contextmanager
 def open_key(
-    key: int | str | RegistryRootKey,
-    sub_key: str | None = None,
-    computer_name: str | None = None,
+    key: Union[int, str, RegistryRootKey],
+    sub_key: Optional[str] = None,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
     sub_key_ensure: bool = False,
     sub_key_access: int = winreg.KEY_READ,
@@ -765,9 +768,9 @@ def open_key(
 
 @contextmanager
 def open_value(
-    key_name: str | RegistryRootKey,
+    key_name: Union[str, RegistryRootKey],
     value_name: str,
-    computer_name: str | None = None,
+    computer_name: Optional[str] = None,
     auto_refresh: bool = True,
     sub_key_access: int = winreg.KEY_READ,
 ) -> Generator[Value, None, None]:
@@ -940,8 +943,8 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_sub_keys(
-        key_name: str | RegistryRootKey,
-    ) -> list[str]:
+        key_name: Union[str, RegistryRootKey],
+    ) -> List[str]:
         """
         Gets a list of sub keys for the specified registry key.
 
@@ -964,8 +967,8 @@ class robot:  # noqa: N801
 
     @staticmethod
     def get_registry_key_values_names(
-        key_name: str | RegistryRootKey,
-    ) -> list[str]:
+        key_name: Union[str, RegistryRootKey],
+    ) -> List[str]:
         """
         Gets a list of value names for the specified registry key.
 
@@ -987,7 +990,7 @@ class robot:  # noqa: N801
 
     @staticmethod
     def read_registry_value(
-        key_name: str | RegistryRootKey,
+        key_name: Union[str, RegistryRootKey],
         value_name: str,
     ) -> Value:
         """
@@ -1013,10 +1016,10 @@ class robot:  # noqa: N801
 
     @staticmethod
     def create_registry_value(
-        key_name: str | RegistryRootKey,
+        key_name: Union[str, RegistryRootKey],
         value_name: str,
         type: RegistryValueType,
-        data: RegistryData | None = None,
+        data: Optional[RegistryData] = None,
     ) -> None:
         """
         Creates a registry value.
@@ -1039,7 +1042,7 @@ class robot:  # noqa: N801
 
     @staticmethod
     def set_registry_value(
-        key_name: str | RegistryRootKey,
+        key_name: Union[str, RegistryRootKey],
         value_name: str,
         data: RegistryData,
     ) -> None:
