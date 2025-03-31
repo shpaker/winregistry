@@ -109,18 +109,18 @@ Contributions are welcome! Please read our contributing guidelines for more deta
 
 ### Setting Up the Development Environment
 
-We use `poetry` for dependency management and packaging. To set up your development environment, follow these steps:
+We use `uv` for dependency management and packaging. To set up your development environment, follow these steps:
 
-1. Install `poetry` if you haven't already:
+1. Install `uv` if you haven't already:
 
     ```bash
-    pip install poetry
+    pip install uv
     ```
 
 2. Install the project dependencies:
 
     ```bash
-    poetry install --sync
+    uv sync --verbose --no-progress --locked --all-extras
     ```
 
 ### Code Formatting and Linting
