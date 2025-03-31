@@ -5,16 +5,6 @@
 
 A Python library for interacting with the Windows registry. This library provides a simple and intuitive API for performing common registry operations, making it easier to work with the Windows registry in Python applications and automated tests.
 
-## Features
-
-- Easy to use API for Windows registry operations
-- Supports creating, reading, updating, and deleting registry keys and values
-- Compatible with Robot Framework for automated testing
-- Context managers for safe resource handling
-- Support for nested registry keys
-- Type hints for better IDE integration
-- Comprehensive error handling
-
 ## Installation
 
 Install via PyPI:
