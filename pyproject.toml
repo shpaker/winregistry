@@ -1,102 +1,104 @@
-[tool.poetry]
+[project]
 name = "winregistry"
 version = "0.0.0"
 description = "A Python library for interacting with the Windows registry"
-authors = ["Aleksandr Shpak <shpaker@gmail.com>"]
 readme = "README.md"
-repository = "https://github.com/shpaker/winregistry"
-keywords = ["windows", "registry", "regedit", "winreg"]
+requires-python = ">=3.8"
 license = "MIT"
+authors = [
+    {name = "Aleksandr Shpak", email = "shpaker@gmail.com"}
+]
+keywords = ["windows", "registry", "regedit", "winreg"]
 classifiers = [
     'Programming Language :: Python',
     'Framework :: Robot Framework :: Library',
     'Operating System :: Microsoft :: Windows',
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.8"
+[project.urls]
+Homepage = "https://github.com/shpaker/winregistry/"
+Repository = "https://github.com/shpaker/winregistry/"
 
-[tool.poetry.group.dev.dependencies]
-robotframework = "*"
-ruff = "*"
+[dependency-groups]
+dev = [
+    "ruff>=0.8.2",
+    "robotframework>=6.1.1",
+]
+
+[tool.hatch.build]
+include = ["winregistry.py"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 target-version = "py38"
-line-length = 79
+line-length = 120
 exclude = [
-  ".venv",
+    ".venv",
+    ".git",
+    ".ruff_cache",
+    "build",
+    "dist",
 ]
 lint.ignore = [
-  "PLR0913", # Too many arguments to function call
-  "RUF001", # Docstring contains ambiguous chars
-  "RUF002", # Docstring contains ambiguous chars
-  "RUF003", # Docstring contains ambiguous chars
-  "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "A001",     # Function argument `type` is shadowing a Python builtin
+    "A002",     # Function argument `type` is shadowing a Python builtin
+    "PLR0913",  # Too many arguments to function call
+    "RUF001",   # Docstring contains ambiguous chars
+    "RUF002",   # Docstring contains ambiguous chars
+    "RUF003",   # Docstring contains ambiguous chars
+    "RUF012",   # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
-lint.flake8-tidy-imports.ban-relative-imports = "all"
 lint.select = [
-  "F", # Pyflakes
-  "C90", # mccabe
-   "I", # isort
-   "N", # pep8-naming
-  # "D", # pydocstyle
-  "UP", # pyupgrade
-  "YTT", # flake8-2020
-#   "ANN", # flake8-annotations
-  # "ASYNC", # flake8-async
-  "S", # flake8-bandit
-   "BLE", # flake8-blind-except
-  # "FBT", # flake8-boolean-trap
-  "B", # flake8-bugbear
-   "A", # flake8-builtins
-#  "COM", # flake8-commas
-  # "CPY", # flake8-copyright
-  "C4", # flake8-comprehensions
-  # "DTZ", # flake8-datetimez
-  "T10", # flake8-debugger
-  # "DJ", # flake8-django
-   "EM", # flake8-errmsg
-   "EXE", # flake8-executable
-   "FA", # flake8-future-annotations
-  "ISC", # flake8-implicit-str-concat
-   "ICN", # flake8-import-conventions
-  "G", # flake8-logging-format
-  "INP", # flake8-no-pep420
-   "PIE", # flake8-pie
-  "T20", # flake8-print
-  # "PYI", # flake8-pyi
-  # "PT", # flake8-pytest-style
-  # "Q", # flake8-quotes
-  "RSE", # flake8-raise
-  "RET", # flake8-return
-  "SLF", # flake8-self
-   "SLOT", # flake8-slots
-  "SIM", # flake8-simplify
-  "TID", # flake8-tidy-imports
-   "TCH", # flake8-type-checking
-   "INT", # flake8-gettext
-   "ARG", # flake8-unused-arguments
-  "PTH", # flake8-use-pathlib
-   "TD", # flake8-todos
-   "FIX", # flake8-fixme
-  "ERA", # eradicate
-  # "PD", # pandas-vet
-   "PGH", # pygrep-hooks
-  "PL", # Pylint
-   "TRY", # tryceratops
-   "FLY", # flynt
-  # "NPY", # NumPy-specific rules
-  # "AIR", # Airflow
-   "PERF", # Perflint
-   "FURB", # refurb
-   "LOG", # flake8-logging
-  "RUF", # Ruff-specific rules
+    "F",    # Pyflakes
+    "C90",  # mccabe
+    "E501", # line too long
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "YTT",  # flake8-2020
+    "S",    # flake8-bandit
+    "BLE",  # flake8-blind-except
+    "B",    # flake8-bugbear
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "T10",  # flake8-debugger
+    "EM",   # flake8-errmsg
+    "EXE",  # flake8-executable
+    "ISC",  # flake8-implicit-str-concat
+    "ICN",  # flake8-import-conventions
+    "G",    # flake8-logging-format
+    "INP",  # flake8-no-pep420
+    "PIE",  # flake8-pie
+    "T20",  # flake8-print
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SLF",  # flake8-self
+    "SLOT", # flake8-slots
+    "SIM",  # flake8-simplify
+    "TID",  # flake8-tidy-imports
+    "TCH",  # flake8-type-checking
+    "INT",  # flake8-gettext
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+    "TD",   # flake8-todos
+    "FIX",  # flake8-fixme
+    "ERA",  # eradicate
+    "PGH",  # pygrep-hooks
+    "PL",   # Pylint
+    "TRY",  # tryceratops
+    "FLY",  # flynt
+    "PERF", # Perflint
+    "FURB", # refurb
+    "LOG",  # flake8-logging
+    "RUF",  # Ruff-specific rules
 ]
-
-[tool.ruff.format]
-quote-style = "single"
-docstring-code-format = true
