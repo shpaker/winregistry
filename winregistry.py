@@ -808,10 +808,6 @@ def open_value(
 class robot:  # noqa: N801
     """Robot Framework library for Windows Registry operations.
 
-    == Table of Contents ==
-
-    %TOC%
-
     = Usage =
 
     The library provides a set of keywords for working with the Windows Registry in Robot Framework format.
@@ -832,31 +828,6 @@ class robot:  # noqa: N801
     |     Create Registry Key    HKEY_CURRENT_USER\\Software\\MyApp
     |     Create Registry Value    HKEY_CURRENT_USER\\Software\\MyApp    Version    SZ    1.0.0
 
-    = Keywords =
-
-    == Existence Checks ==
-
-    | = Keyword = | = Description = |
-    | Registry Key Should Exist | Verifies that the specified registry key exists |
-    | Registry Key Should Not Exist | Verifies that the specified registry key does not exist |
-    | Registry Value Should Exist | Verifies that the specified registry value exists |
-    | Registry Value Should Not Exist | Verifies that the specified registry value does not exist |
-
-    == Key Management ==
-
-    | = Keyword = | = Description = |
-    | Create Registry Key | Creates a new registry key |
-    | Delete Registry Key | Deletes the specified registry key |
-    | Get Registry Key Sub Keys | Returns a list of subkeys for the specified key |
-    | Get Registry Key Values Names | Returns a list of value names for the specified key |
-
-    == Value Management ==
-
-    | = Keyword = | = Description = |
-    | Read Registry Value | Reads a registry value |
-    | Create Registry Value | Creates a new registry value |
-    | Set Registry Value | Sets a registry value |
-    | Delete Registry Value | Deletes a registry value |
     """
 
     @staticmethod
