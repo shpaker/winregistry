@@ -22,4 +22,4 @@
         - run: uv python install 3.12
         - run: uv sync --all-extras --dev
         - run: uv build
-        - run: uv publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+        - run: uv publish --username __token__ --password ${{ secrets.PYPI_PASS }}
