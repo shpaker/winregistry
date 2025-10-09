@@ -51,7 +51,7 @@ with open_key(
   sub_key_ensure=True,
   sub_key_access=winreg.KEY_SET_VALUE
 ) as key:
-  key.set_value("MyValue", "Sample Data", winreg.REG_SZ)
+  key.set_value("MyValue", winreg.REG_SZ, "Sample Data")
   print("Registry value set")
 
 # Read a registry value
