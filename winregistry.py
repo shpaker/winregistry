@@ -7,7 +7,16 @@ License: MIT
 URL: https://github.com/shpaker/winregistry
 """
 
-import winreg
+import sys
+
+try:
+    import winreg
+except ImportError as e:
+    raise ImportError(
+        "winregistry requires Windows. The 'winreg' module is part of the Python "
+        "standard library only on Windows. Current platform: {!r}".format(sys.platform)
+    ) from e
+
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from contextlib import contextmanager
