@@ -23,18 +23,16 @@ from winregistry import open_key
 
 # Create a registry key
 with open_key(
-  winreg.HKEY_LOCAL_MACHINE,
-  sub_key="SOFTWARE\\MyApp",
+  "HKLM\\SOFTWARE\\MyApp",
   sub_key_ensure=True,
-  sub_key_access=winreg.KEY_WRITE
+  sub_key_access=winreg.KEY_WRITE,
 ) as key:
   print("Registry key created")
 
 # Delete a registry key
 with open_key(
-  winreg.HKEY_LOCAL_MACHINE,
-  sub_key="SOFTWARE",
-  sub_key_access=winreg.KEY_WRITE
+  "HKLM\\SOFTWARE",
+  sub_key_access=winreg.KEY_WRITE,
 ) as key:
   key.delete_key("MyApp")
   print("Registry key deleted")
@@ -43,21 +41,26 @@ with open_key(
 ### Setting and Reading Registry Values
 
 ```python
+import winreg
 from winregistry import open_key, open_value
 
 # Set a registry value
 with open_key(
   "HKLM\\SOFTWARE\\MyApp",
   sub_key_ensure=True,
-  sub_key_access=winreg.KEY_SET_VALUE
+  sub_key_access=winreg.KEY_WRITE,
 ) as key:
-  key.set_value("MyValue", winreg.REG_SZ, "Sample Data")
+  key.set_value(
+    "MyValue",
+    winreg.REG_SZ,
+    "Sample Data",
+  )
   print("Registry value set")
 
 # Read a registry value
 with open_value(
   "HKLM\\SOFTWARE\\MyApp",
-  value_name="MyValue"
+  value_name="MyValue",
 ) as value:
   print(f"Registry value: {value.data}")
 ```
@@ -65,22 +68,23 @@ with open_value(
 ### Enumerating Subkeys and Values
 
 ```python
+import winreg
 from winregistry import open_key
 
 # Enumerate subkeys
 with open_key(
   "HKLM\\SOFTWARE",
-  sub_key_access=winreg.KEY_READ
+  sub_key_access=winreg.KEY_READ,
 ) as key:
-  subkeys = key.enum_subkeys()
+  subkeys = list(key.child_keys_names)
   print(f"Subkeys: {subkeys}")
 
 # Enumerate values
 with open_key(
   "HKLM\\SOFTWARE\\MyApp",
-  sub_key_access=winreg.KEY_READ
+  sub_key_access=winreg.KEY_READ,
 ) as key:
-  values = key.enum_values()
+  values = [(v.name, v.data) for v in key.values]
   print(f"Values: {values}")
 ```
 
@@ -91,7 +95,8 @@ The library provides a Robot Framework library that makes it easy to work with t
 ### Documentation
 
 For detailed documentation of the Robot Framework library, visit:
-https://shpaker.github.io/winregistry/winregistry.robot
+
+https://shpaker.github.io/winregistry/winregistry.robot.html
 
 ### Example Tests
 
@@ -105,7 +110,9 @@ A complete set of example tests demonstrating various registry operations can be
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines for more details.
+Contributions are welcome!
+
+Commit messages follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
 ### Setting Up the Development Environment
 
@@ -120,7 +127,7 @@ We use `uv` for dependency management and packaging. To set up your development 
 2. Install the project dependencies:
 
     ```bash
-    uv sync --verbose --no-progress --locked --all-extras
+    uv sync --group dev
     ```
 
 ### Code Formatting and Linting

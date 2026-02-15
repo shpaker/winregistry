@@ -19,8 +19,7 @@ jobs:
           python-version: "3.12"
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
-      - uses: extractions/setup-just@v3
-      - run: uv sync --verbose --no-progress --locked --all-extras
+      - run: uv sync --group dev
       - run: just doc
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
