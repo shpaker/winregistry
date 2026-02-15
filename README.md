@@ -3,7 +3,9 @@
 [![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 [![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
 
-A Python library for interacting with the Windows registry. This library provides a simple and intuitive API for performing common registry operations, making it easier to work with the Windows registry in Python applications and automated tests.
+A Python library for interacting with the Windows registry.
+
+**Windows only.** This library depends on the standard library module `winreg`, which is available only on Windows. On Linux or macOS you will get `ModuleNotFoundError: No module named 'winreg'`; use Windows or guard usage with a platform check (e.g. `if sys.platform == "win32"`). This library provides a simple and intuitive API for performing common registry operations, making it easier to work with the Windows registry in Python applications and automated tests.
 
 ## Installation
 
