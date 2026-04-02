@@ -131,7 +131,7 @@ _REG_TYPES_MAPPING: Dict[str, int] = {
 }
 
 KeyInfo = namedtuple("KeyInfo", ["child_keys_count", "values_count", "modified_at"])
-ValueInfo = namedtuple("RawValueInfo", ["data", "type"])
+ValueInfo = namedtuple("ValueInfo", ["data", "type"])
 
 
 class RegEntity(
@@ -815,8 +815,6 @@ def open_value(
 
 
 class robot:  # noqa: N801
-    ROBOT_LIBRARY_DOC_FORMAT = "ROBOT"
-
     """Robot Framework library for Windows Registry operations.
 
     = Usage =
@@ -840,6 +838,8 @@ class robot:  # noqa: N801
     |     Create Registry Value    HKEY_CURRENT_USER\\Software\\MyApp    Version    SZ    1.0.0
 
     """
+
+    ROBOT_LIBRARY_DOC_FORMAT = "ROBOT"
 
     @staticmethod
     def registry_key_should_exist(
@@ -975,19 +975,16 @@ class robot:  # noqa: N801
         |     ${items}=    Get Registry Key Sub Keys    HKEY_LOCAL_MACHINE\\SOFTWARE
         |     List Should Contain Value    ${items}    _ROBOT_TESTS_
         """
-        sub_key_name = None
-        if "\\" in key_name:
-            key_name, sub_key_name = key_name.split("\\", maxsplit=1)
-        if sub_key_name and "\\" in sub_key_name:
-            sub_key_name, new_key_name = sub_key_name.rsplit("\\", maxsplit=1)
+        if "\\" not in key_name:
+            raise ValueError(f"Cannot create a root key: {key_name}")
+        key_name, sub_key_name = key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,
-            sub_key=sub_key_name,
             sub_key_ensure=True,
             sub_key_access=winreg.KEY_ALL_ACCESS,
             auto_refresh=False,
         ) as client:
-            client.create_key(new_key_name)
+            client.create_key(sub_key_name)
 
     @staticmethod
     def delete_registry_key(
@@ -1012,6 +1009,8 @@ class robot:  # noqa: N801
         |     Delete Registry Key    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ    recursive=True
         |     Registry Key Should Not Exist    HKEY_LOCAL_MACHINE\\SOFTWARE\\_ROBOT_TESTS_\\FOO\\BAR\\BAZ
         """
+        if "\\" not in key_name:
+            raise ValueError(f"Cannot delete a root key: {key_name}")
         key_name, sub_key_name = key_name.rsplit("\\", maxsplit=1)
         with open_key(
             key_name,

@@ -10,10 +10,9 @@
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
-        - name: Extract branch name
+        - name: Extract version from tag
           shell: bash
-          run: |
-            echo "##[set-output name=ver;]$(echo ${GITHUB_REF#refs/*/})"
+          run: echo "ver=${GITHUB_REF#refs/*/}" >> "$GITHUB_OUTPUT"
           id: extract_name_and_version
         - run: sed -i 's/0.0.0/'"${{ steps.extract_name_and_version.outputs.ver }}"'/' pyproject.toml
         - run: head -n 10 pyproject.toml
