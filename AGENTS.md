@@ -33,3 +33,4 @@ If tests cannot run (e.g. on macOS/Linux), at minimum run `just fmt lint`.
 - Use type annotations everywhere
 - Follow existing patterns — do not introduce new abstractions without need
 - Commit messages: conventional commits (`fix:`, `feat:`, `chore:`, etc.)
+- CHANGELOG.md: update only for stable releases (no entries for alpha/pre-release versions)
