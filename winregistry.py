@@ -892,7 +892,8 @@ class robot:  # noqa: N801
             cls.registry_key_should_exist(key_name)
         except FileNotFoundError:
             return
-        raise FileExistsError
+        msg = f"Registry key exists but should not: {key_name!r}"
+        raise AssertionError(msg)
 
     @staticmethod
     def registry_value_should_exist(
@@ -951,7 +952,8 @@ class robot:  # noqa: N801
             cls.registry_value_should_exist(key_name, value_name)
         except FileNotFoundError:
             return
-        raise FileExistsError
+        msg = f"Registry value exists but should not: key={key_name!r}, value={value_name!r}"
+        raise AssertionError(msg)
 
     @staticmethod
     def create_registry_key(
