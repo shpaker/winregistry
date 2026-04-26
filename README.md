@@ -1,7 +1,9 @@
 # WinRegistry
 
-[![PyPI](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
-[![PyPI](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.python.org/pypi/winregistry)
+[![PyPI version](https://img.shields.io/pypi/v/winregistry.svg)](https://pypi.org/project/winregistry/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/winregistry.svg)](https://pypi.org/project/winregistry/)
+[![Python versions](https://img.shields.io/pypi/pyversions/winregistry.svg)](https://pypi.org/project/winregistry/)
+[![License](https://img.shields.io/pypi/l/winregistry.svg)](https://github.com/shpaker/winregistry/blob/main/LICENSE)
 
 A Python library for interacting with the Windows registry.
 
